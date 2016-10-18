@@ -8,7 +8,7 @@ import (
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	//	"google.golang.org/appengine/log"
 )
 
 type GaeSessionItem struct {
@@ -48,17 +48,8 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 	}
 	//
 	sessionObj.gaeObj.UserName = userObj.GetUserName()
-	log.Infof(ctx, " : "+sessionObj.gaeKey.Kind()+" : "+sessionObj.gaeKey.StringID())
-	log.Infof(ctx, " Id : "+sessionObj.gaeObj.Id)
-	log.Infof(ctx, " Info : "+sessionObj.gaeObj.Info)
-	log.Infof(ctx, " Name : "+sessionObj.gaeObj.Name)
-	log.Infof(ctx, " Type : "+sessionObj.gaeObj.Type)
-	log.Infof(ctx, " Time : "+sessionObj.gaeObj.Update.String())
-	log.Infof(ctx, " UserName : "+sessionObj.gaeObj.UserName)
-
 	_, err = datastore.Put(ctx, sessionObj.gaeKey, sessionObj.gaeObj)
 	if err != nil {
-		log.Infof(ctx, " :: "+err.Error())
 		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
 	}
 	err = obj.SaveUser(ctx, userObj)
