@@ -7,6 +7,8 @@ import (
 	"io"
 	"time"
 
+	"encoding/base64"
+
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -70,9 +72,9 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 		now := time.Now().UnixNano()
 		io.WriteString(hashObj, miniprop.MakeRandomId())
 		io.WriteString(hashObj, strconv.FormatInt(now, 36))
-		userName := string(hashObj.Sum(nil))
+		userName := string(base64.StdEncoding.EncodeToString(hashObj.Sum(nil)))
 		userObj, err = obj.GetUserFromUserName(ctx, userName)
-		if err == nil {
+		if err != nil {
 			break
 		}
 	}

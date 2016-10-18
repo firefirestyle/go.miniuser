@@ -5,6 +5,12 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
+type UserManagerConfig struct {
+	ProjectId   string
+	UserKind    string
+	SessionKind string
+}
+
 type UserManager struct {
 	projectId      string
 	userKind       string
@@ -12,11 +18,11 @@ type UserManager struct {
 	limitOfFinding int
 }
 
-func NewUserManager(projectId string, userKind string, sessionKind string) *UserManager {
+func NewUserManager(config UserManagerConfig) *UserManager {
 	obj := new(UserManager)
-	obj.projectId = projectId
-	obj.userKind = userKind
-	obj.sessionKind = sessionKind
+	obj.projectId = config.ProjectId
+	obj.userKind = config.UserKind
+	obj.sessionKind = config.SessionKind
 	obj.limitOfFinding = 10
 	return obj
 }
