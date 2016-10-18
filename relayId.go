@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	//	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/memcache"
 )
 
 const (
@@ -62,6 +63,15 @@ func (obj *RelayId) SetValueFromJson(data []byte) {
 	obj.gaeObj.Update = propObj.GetTime(TypeInfo, time.Now())
 }
 
+func (obj *RelayId) UpdateMemcache(ctx context.Context) {
+	userObjMemSource := obj.ToJson()
+	userObjMem := &memcache.Item{
+		Key:   obj.gaeKey.StringID(),
+		Value: []byte(userObjMemSource), //
+	}
+	memcache.Set(ctx, userObjMem)
+}
+
 func (obj *RelayId) GetName() string {
 	return obj.gaeObj.Name
 }
@@ -90,6 +100,14 @@ func (obj *RelayId) GetUpdate() time.Time {
 	return obj.gaeObj.Update
 }
 
+func (obj *RelayId) Save(ctx context.Context) error {
+	_, err := datastore.Put(ctx, obj.gaeKey, obj.gaeObj)
+	if err == nil {
+		obj.UpdateMemcache(ctx)
+	}
+	return err
+}
+
 func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
 	sessionObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
@@ -112,11 +130,11 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 
 	//
 	// set username
-	sessionObj.gaeObj.UserName = userObj.GetUserName()
+	sessionObj.SetUserName(userObj.GetUserName())
 
 	//
 	// save relayId
-	_, err = datastore.Put(ctx, sessionObj.gaeKey, sessionObj.gaeObj)
+	err = sessionObj.Save(ctx)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
 	}
@@ -159,15 +177,34 @@ func (obj *UserManager) NewRelayId(ctx context.Context, identify string, //
 func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
 	gaeKey := obj.NewRelayIdGaeKey(ctx, identify, identifyType)
 	gaeObj := GaeRelayIdItem{}
+
+	//
+	// mem
+	memItemObj, errMemObj := memcache.Get(ctx, obj.MakeRelayIdStringId(identify, identifyType))
+	if errMemObj != nil {
+		ret := &RelayId{
+			gaeObj: &gaeObj,
+			gaeKey: gaeKey,
+			kind:   obj.relayIdKind,
+		}
+		ret.SetValueFromJson(memItemObj.Value)
+		return ret, nil
+	}
+	//
+	// db
 	err := datastore.Get(ctx, gaeKey, &gaeObj)
 	if err != nil {
 		return nil, err
 	}
-	return &RelayId{
+	ret := &RelayId{
 		gaeObj: &gaeObj,
 		gaeKey: gaeKey,
 		kind:   obj.relayIdKind,
-	}, nil
+	}
+	//
+	//
+	ret.UpdateMemcache(ctx)
+	return ret, nil
 }
 
 func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
