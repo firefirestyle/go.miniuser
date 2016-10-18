@@ -11,13 +11,28 @@ import (
 	//	"google.golang.org/appengine/log"
 )
 
+const (
+	TypeTwitter = "twitter"
+)
+
+const (
+	TypeRelayIdProjectId = "ProjectId"
+	TypeRelayIdName      = "Name"
+	TypeRelayIdId        = "Id"
+	TypeRelayIdType      = "Type"
+	TypeRelayIdUserName  = "UserName"
+	TypeRelayIdInfo      = "Info"
+	TypeRelayIdUpdate    = "Update"
+)
+
 type GaeRelayIdItem struct {
-	Name     string
-	Id       string
-	Type     string
-	UserName string
-	Info     string
-	Update   time.Time
+	ProjectId string
+	Name      string
+	Id        string
+	Type      string
+	UserName  string
+	Info      string
+	Update    time.Time
 }
 
 type RelayId struct {
@@ -26,9 +41,54 @@ type RelayId struct {
 	kind   string
 }
 
-const (
-	TypeTwitter = "twitter"
-)
+func (obj *RelayId) ToJson() []byte {
+	propObj := miniprop.NewMiniProp()
+	propObj.SetString(TypeRelayIdProjectId, obj.gaeObj.ProjectId)
+	propObj.SetString(TypeRelayIdName, obj.gaeObj.Name)
+	propObj.SetString(TypeRelayIdId, obj.gaeObj.Id)
+	propObj.SetString(TypeRelayIdUserName, obj.gaeObj.UserName)
+	propObj.SetString(TypeRelayIdInfo, obj.gaeObj.Info)
+	propObj.SetTime(TypeInfo, obj.gaeObj.Update)
+	return propObj.ToJson()
+}
+
+func (obj *RelayId) SetValueFromJson(data []byte) {
+	propObj := miniprop.NewMiniPropFromJson(data)
+	obj.gaeObj.ProjectId = propObj.GetString(TypeRelayIdProjectId, "")
+	obj.gaeObj.Name = propObj.GetString(TypeRelayIdName, "")
+	obj.gaeObj.Id = propObj.GetString(TypeRelayIdId, "")
+	obj.gaeObj.UserName = propObj.GetString(TypeRelayIdUserName, "")
+	obj.gaeObj.Info = propObj.GetString(TypeRelayIdInfo, "")
+	obj.gaeObj.Update = propObj.GetTime(TypeInfo, time.Now())
+}
+
+func (obj *RelayId) GetName() string {
+	return obj.gaeObj.Name
+}
+
+func (obj *RelayId) GetId() string {
+	return obj.gaeObj.Id
+}
+
+func (obj *RelayId) GetType() string {
+	return obj.gaeObj.Type
+}
+
+func (obj *RelayId) GetUserName() string {
+	return obj.gaeObj.UserName
+}
+
+func (obj *RelayId) SetUserName(v string) {
+	obj.gaeObj.UserName = v
+}
+
+func (obj *RelayId) GetInfo() string {
+	return obj.gaeObj.Info
+}
+
+func (obj *RelayId) GetUpdate() time.Time {
+	return obj.gaeObj.Update
+}
 
 func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
 	sessionObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
@@ -78,9 +138,10 @@ func (obj *UserManager) NewRelayId(ctx context.Context, identify string, //
 	userId string, identifyType string, infos map[string]string) *RelayId {
 	gaeKey := obj.NewRelayIdGaeKey(ctx, userId, identifyType)
 	gaeObj := GaeRelayIdItem{
-		Name: identify,
-		Id:   userId,
-		Type: TypeTwitter,
+		Name:      identify,
+		Id:        userId,
+		Type:      TypeTwitter,
+		ProjectId: obj.projectId,
 	}
 	propObj := miniprop.NewMiniPropFromJson([]byte(gaeObj.Info))
 	for k, v := range infos {

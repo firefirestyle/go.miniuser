@@ -34,7 +34,6 @@ const (
 	TypeInfo        = "Info"
 	TypePoint       = "Point"
 	TypeIconUrl     = "IconUrl"
-	//
 )
 
 type GaeUserItem struct {
