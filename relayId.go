@@ -181,7 +181,7 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 	//
 	// mem
 	memItemObj, errMemObj := memcache.Get(ctx, obj.MakeRelayIdStringId(identify, identifyType))
-	if errMemObj != nil {
+	if errMemObj == nil {
 		ret := &RelayId{
 			gaeObj: &gaeObj,
 			gaeKey: gaeKey,
