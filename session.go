@@ -33,9 +33,11 @@ const (
 func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
 	sessionObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
+
+	//
+	// new userObj
 	var err error = nil
 	var userObj *User = nil
-
 	if sessionObj.gaeObj.Name != "" {
 		needMake = true
 		userObj, err = obj.GetUserFromUserName(ctx, sessionObj.gaeObj.Name)
@@ -43,18 +45,24 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 			userObj = nil
 		}
 	}
-
 	if userObj == nil {
 		userObj = obj.NewNewUser(ctx)
 		userObj.SetDisplayName(screenName)
 	}
 
 	//
+	// set username
 	sessionObj.gaeObj.UserName = userObj.GetUserName()
+
+	//
+	// save relayId
 	_, err = datastore.Put(ctx, sessionObj.gaeKey, sessionObj.gaeObj)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
 	}
+
+	//
+	// save user
 	err = obj.SaveUser(ctx, userObj)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save userobj : " + err.Error())
@@ -102,18 +110,18 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 }
 
 func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
-	replyObj, err := obj.GetRelayId(ctx, screenName, userIdType)
+	relayObj, err := obj.GetRelayId(ctx, screenName, userIdType)
 	if err != nil {
-		replyObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
+		relayObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
 	}
 	//
-	propObj := miniprop.NewMiniPropFromJson([]byte(replyObj.gaeObj.Info))
+	propObj := miniprop.NewMiniPropFromJson([]byte(relayObj.gaeObj.Info))
 	for k, v := range infos {
 		propObj.SetString(k, v)
 	}
-	replyObj.gaeObj.Info = string(propObj.ToJson())
-	replyObj.gaeObj.Update = time.Now()
-	return replyObj
+	relayObj.gaeObj.Info = string(propObj.ToJson())
+	relayObj.gaeObj.Update = time.Now()
+	return relayObj
 }
 
 func (obj *UserManager) MakeRelayIdStringId(identify string, identifyType string) string {
