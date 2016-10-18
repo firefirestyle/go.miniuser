@@ -74,11 +74,11 @@ func (obj *UserManager) GetRelayIdForTwitter(ctx context.Context, screenName str
 	return obj.GetRelayIdWithNew(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
 }
 
-func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
-	userId string, userIdType string, infos map[string]string) *RelayId {
-	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(userId, userIdType), 0, nil)
+func (obj *UserManager) NewRelayId(ctx context.Context, identify string, //
+	userId string, identifyType string, infos map[string]string) *RelayId {
+	gaeKey := obj.NewRelayIdGaeKey(ctx, userId, identifyType)
 	gaeObj := GaeRelayIdItem{
-		Name: screenName,
+		Name: identify,
 		Id:   userId,
 		Type: TypeTwitter,
 	}
@@ -96,7 +96,7 @@ func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
 }
 
 func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
-	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
+	gaeKey := obj.NewRelayIdGaeKey(ctx, identify, identifyType)
 	gaeObj := GaeRelayIdItem{}
 	err := datastore.Get(ctx, gaeKey, &gaeObj)
 	if err != nil {
@@ -122,6 +122,10 @@ func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string
 	relayObj.gaeObj.Info = string(propObj.ToJson())
 	relayObj.gaeObj.Update = time.Now()
 	return relayObj
+}
+
+func (obj *UserManager) NewRelayIdGaeKey(ctx context.Context, identify string, identifyType string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
 }
 
 func (obj *UserManager) MakeRelayIdStringId(identify string, identifyType string) string {
