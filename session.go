@@ -11,7 +11,7 @@ import (
 	//	"google.golang.org/appengine/log"
 )
 
-type GaeSessionItem struct {
+type GaeRelayIdItem struct {
 	Name     string
 	Id       string
 	Type     string
@@ -20,8 +20,8 @@ type GaeSessionItem struct {
 	Update   time.Time
 }
 
-type Session struct {
-	gaeObj *GaeSessionItem
+type RelayId struct {
+	gaeObj *GaeRelayIdItem
 	gaeKey *datastore.Key
 }
 
@@ -29,7 +29,7 @@ const (
 	TypeTwitter = "twitter"
 )
 
-func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *Session, *User, error) {
+func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
 	sessionObj := obj.GetSessionTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
 	var err error = nil
@@ -45,7 +45,9 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 
 	if userObj == nil {
 		userObj = obj.NewNewUser(ctx)
+		userObj.SetDisplayName(screenName)
 	}
+
 	//
 	sessionObj.gaeObj.UserName = userObj.GetUserName()
 	_, err = datastore.Put(ctx, sessionObj.gaeKey, sessionObj.gaeObj)
@@ -59,16 +61,16 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 	return needMake, sessionObj, userObj, nil
 }
 
-func (obj *UserManager) GetSessionTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *Session {
+func (obj *UserManager) GetSessionTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
 	return obj.GetSession(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
 }
 
-func (obj *UserManager) GetSession(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *Session {
-	gaeKey := datastore.NewKey(ctx, obj.sessionKind, obj.MakeSessionId(screenName, userIdType), 0, nil)
-	gaeObj := GaeSessionItem{}
+func (obj *UserManager) GetSession(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
+	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeSessionId(screenName, userIdType), 0, nil)
+	gaeObj := GaeRelayIdItem{}
 	err := datastore.Get(ctx, gaeKey, &gaeObj)
 	if err != nil {
-		gaeObj = GaeSessionItem{
+		gaeObj = GaeRelayIdItem{
 			Name: screenName,
 			Id:   userId,
 			Type: TypeTwitter,
@@ -81,12 +83,12 @@ func (obj *UserManager) GetSession(ctx context.Context, screenName string, userI
 	}
 	gaeObj.Info = string(propObj.ToJson())
 	gaeObj.Update = time.Now()
-	return &Session{
+	return &RelayId{
 		gaeObj: &gaeObj,
 		gaeKey: gaeKey,
 	}
 }
 
 func (obj *UserManager) MakeSessionId(identify string, identifyType string) string {
-	return obj.sessionKind + ":" + obj.projectId + ":" + identifyType + ":" + identify
+	return obj.relayIdKind + ":" + obj.projectId + ":" + identifyType + ":" + identify
 }

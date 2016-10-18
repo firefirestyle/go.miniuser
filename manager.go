@@ -8,13 +8,13 @@ import (
 type UserManagerConfig struct {
 	ProjectId   string
 	UserKind    string
-	SessionKind string
+	RelayIdKind string
 }
 
 type UserManager struct {
 	projectId      string
 	userKind       string
-	sessionKind    string
+	relayIdKind    string
 	limitOfFinding int
 }
 
@@ -22,7 +22,7 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 	obj := new(UserManager)
 	obj.projectId = config.ProjectId
 	obj.userKind = config.UserKind
-	obj.sessionKind = config.SessionKind
+	obj.relayIdKind = config.RelayIdKind
 	obj.limitOfFinding = 10
 	return obj
 }
@@ -36,7 +36,7 @@ func (obj *UserManager) GetUserKind() string {
 }
 
 func (obj *UserManager) GetLoginIdKind() string {
-	return obj.sessionKind
+	return obj.relayIdKind
 }
 
 func (obj *UserManager) NewNewUser(ctx context.Context) *User {
