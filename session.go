@@ -31,7 +31,7 @@ const (
 )
 
 func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
-	sessionObj := obj.GetSessionTwitter(ctx, screenName, userId, oauthToken)
+	sessionObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
 	var err error = nil
 	var userObj *User = nil
@@ -62,23 +62,8 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 	return needMake, sessionObj, userObj, nil
 }
 
-func (obj *UserManager) GetSessionTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
-	return obj.GetSession(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
-}
-
-func (obj *UserManager) GetSession(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
-	replyObj, err := obj.GetRelayId(ctx, screenName, userIdType)
-	if err != nil {
-		replyObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
-	}
-	//
-	propObj := miniprop.NewMiniPropFromJson([]byte(replyObj.gaeObj.Info))
-	for k, v := range infos {
-		propObj.SetString(k, v)
-	}
-	replyObj.gaeObj.Info = string(propObj.ToJson())
-	replyObj.gaeObj.Update = time.Now()
-	return replyObj
+func (obj *UserManager) GetRelayIdForTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
+	return obj.GetRelayIdWithNew(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
 }
 
 func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
@@ -101,6 +86,7 @@ func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
 		kind:   obj.userKind,
 	}
 }
+
 func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
 	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
 	gaeObj := GaeRelayIdItem{}
@@ -113,6 +99,21 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 		gaeKey: gaeKey,
 		kind:   obj.relayIdKind,
 	}, nil
+}
+
+func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
+	replyObj, err := obj.GetRelayId(ctx, screenName, userIdType)
+	if err != nil {
+		replyObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
+	}
+	//
+	propObj := miniprop.NewMiniPropFromJson([]byte(replyObj.gaeObj.Info))
+	for k, v := range infos {
+		propObj.SetString(k, v)
+	}
+	replyObj.gaeObj.Info = string(propObj.ToJson())
+	replyObj.gaeObj.Update = time.Now()
+	return replyObj
 }
 
 func (obj *UserManager) MakeRelayIdStringId(identify string, identifyType string) string {
