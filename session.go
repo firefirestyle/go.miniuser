@@ -23,6 +23,7 @@ type GaeRelayIdItem struct {
 type RelayId struct {
 	gaeObj *GaeRelayIdItem
 	gaeKey *datastore.Key
+	kind   string
 }
 
 const (
@@ -66,16 +67,27 @@ func (obj *UserManager) GetSessionTwitter(ctx context.Context, screenName string
 }
 
 func (obj *UserManager) GetSession(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
-	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeSessionId(screenName, userIdType), 0, nil)
-	gaeObj := GaeRelayIdItem{}
-	err := datastore.Get(ctx, gaeKey, &gaeObj)
+	replyObj, err := obj.GetRelayId(ctx, screenName, userIdType)
 	if err != nil {
-		gaeObj = GaeRelayIdItem{
-			Name: screenName,
-			Id:   userId,
-			Type: TypeTwitter,
-		}
+		replyObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
+	}
+	//
+	propObj := miniprop.NewMiniPropFromJson([]byte(replyObj.gaeObj.Info))
+	for k, v := range infos {
+		propObj.SetString(k, v)
+	}
+	replyObj.gaeObj.Info = string(propObj.ToJson())
+	replyObj.gaeObj.Update = time.Now()
+	return replyObj
+}
 
+func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
+	userId string, userIdType string, infos map[string]string) *RelayId {
+	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(userId, userIdType), 0, nil)
+	gaeObj := GaeRelayIdItem{
+		Name: screenName,
+		Id:   userId,
+		Type: TypeTwitter,
 	}
 	propObj := miniprop.NewMiniPropFromJson([]byte(gaeObj.Info))
 	for k, v := range infos {
@@ -86,9 +98,23 @@ func (obj *UserManager) GetSession(ctx context.Context, screenName string, userI
 	return &RelayId{
 		gaeObj: &gaeObj,
 		gaeKey: gaeKey,
+		kind:   obj.userKind,
 	}
 }
+func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
+	gaeKey := datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
+	gaeObj := GaeRelayIdItem{}
+	err := datastore.Get(ctx, gaeKey, &gaeObj)
+	if err != nil {
+		return nil, err
+	}
+	return &RelayId{
+		gaeObj: &gaeObj,
+		gaeKey: gaeKey,
+		kind:   obj.relayIdKind,
+	}, nil
+}
 
-func (obj *UserManager) MakeSessionId(identify string, identifyType string) string {
+func (obj *UserManager) MakeRelayIdStringId(identify string, identifyType string) string {
 	return obj.relayIdKind + ":" + obj.projectId + ":" + identifyType + ":" + identify
 }
