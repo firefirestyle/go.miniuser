@@ -49,7 +49,7 @@ func (obj *RelayId) ToJson() []byte {
 	propObj.SetString(TypeRelayIdId, obj.gaeObj.Id)
 	propObj.SetString(TypeRelayIdUserName, obj.gaeObj.UserName)
 	propObj.SetString(TypeRelayIdInfo, obj.gaeObj.Info)
-	propObj.SetTime(TypeInfo, obj.gaeObj.Update)
+	propObj.SetTime(TypePublicInfo, obj.gaeObj.Update)
 	return propObj.ToJson()
 }
 
@@ -60,7 +60,7 @@ func (obj *RelayId) SetValueFromJson(data []byte) {
 	obj.gaeObj.Id = propObj.GetString(TypeRelayIdId, "")
 	obj.gaeObj.UserName = propObj.GetString(TypeRelayIdUserName, "")
 	obj.gaeObj.Info = propObj.GetString(TypeRelayIdInfo, "")
-	obj.gaeObj.Update = propObj.GetTime(TypeInfo, time.Now())
+	obj.gaeObj.Update = propObj.GetTime(TypePublicInfo, time.Now())
 }
 
 func (obj *RelayId) UpdateMemcache(ctx context.Context) {

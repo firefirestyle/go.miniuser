@@ -31,9 +31,10 @@ const (
 	TypeCreated     = "Created"
 	TypeLogined     = "Logined"
 	TypeState       = "State"
-	TypeInfo        = "Info"
+	TypePublicInfo  = "PublicInfo"
 	TypePoint       = "Point"
 	TypeIconUrl     = "IconUrl"
+	TypePrivateInfo = "PrivateInfo"
 )
 
 type GaeUserItem struct {
@@ -43,7 +44,8 @@ type GaeUserItem struct {
 	Created     time.Time `datastore:",noindex"`
 	Logined     time.Time
 	State       string
-	Info        string `datastore:",noindex"`
+	PublicInfo  string `datastore:",noindex"`
+	PrivateInfo string `datastore:",noindex"`
 	Point       int
 	IconUrl     string `datastore:",noindex"`
 }
@@ -129,27 +131,40 @@ func (userObj *User) SetUserFromsJson(ctx context.Context, source string) error 
 	userObj.gaeObject.Created = time.Unix(0, int64(v[TypeCreated].(float64))) //srcCreated
 	userObj.gaeObject.Logined = time.Unix(0, int64(v[TypeLogined].(float64))) //srcLogin
 	userObj.gaeObject.State = v[TypeState].(string)
-	userObj.gaeObject.Info = v[TypeInfo].(string)
+	userObj.gaeObject.PublicInfo = v[TypePublicInfo].(string)
+	userObj.gaeObject.PrivateInfo = v[TypePrivateInfo].(string)
 	userObj.gaeObject.Point = int(v[TypePoint].(float64))
 	userObj.gaeObject.IconUrl = v[TypeIconUrl].(string)
 
 	return nil
 }
 
-func (obj *User) ToJson() (string, error) {
-	v := map[string]interface{}{
+func (obj *User) ToMapPublic() map[string]interface{} {
+	return map[string]interface{}{
 		TypeProjectId:   obj.gaeObject.ProjectId,
-		TypeDisplayName: obj.GetDisplayName(),        //
-		TypeUserName:    obj.GetUserName(),           //
-		TypeCreated:     obj.GetCreated().UnixNano(), //string(srcCreated),   //obj.GetCreated().UnixNano().(int64), //srcCreated,           //
-		TypeLogined:     obj.GetLogined().UnixNano(), //
-		TypeState:       obj.GetStatus(),             //
-		TypeInfo:        obj.GetInfo(),               //
-		TypePoint:       obj.GetPoint(),              //
-		TypeIconUrl:     obj.GetIconUrl(),            //
-	}
-	vv, e := json.Marshal(v)
-	return string(vv), e
+		TypeDisplayName: obj.gaeObject.DisplayName,        //
+		TypeUserName:    obj.gaeObject.UserName,           //
+		TypeCreated:     obj.gaeObject.Created.UnixNano(), //
+		TypeLogined:     obj.gaeObject.Logined.UnixNano(), //
+		TypeState:       obj.gaeObject.State,              //
+		TypePoint:       obj.gaeObject.Point,              //
+		TypeIconUrl:     obj.gaeObject.IconUrl,            //
+		TypePublicInfo:  obj.gaeObject.PublicInfo}
+}
+
+func (obj *User) ToMapAll() map[string]interface{} {
+	v := obj.ToMapPublic()
+	v[TypePrivateInfo] = obj.gaeObject.PrivateInfo
+	return v
+}
+
+func (obj *User) ToJson() ([]byte, error) {
+	vv, e := json.Marshal(obj.ToMapAll())
+	return vv, e
+}
+func (obj *User) ToJsonPublic() ([]byte, error) {
+	vv, e := json.Marshal(obj.ToMapPublic())
+	return vv, e
 }
 
 func (obj *User) updateMemcache(ctx context.Context) error {
@@ -207,11 +222,11 @@ func (obj *User) GetLogined() time.Time {
 }
 
 func (obj *User) GetInfo() string {
-	return obj.gaeObject.Info
+	return obj.gaeObject.PublicInfo
 }
 
 func (obj *User) SetInfo(v string) {
-	obj.gaeObject.Info = v
+	obj.gaeObject.PublicInfo = v
 }
 
 func (obj *User) GetPoint() int {
