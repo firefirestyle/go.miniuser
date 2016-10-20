@@ -3,6 +3,7 @@ package miniuser
 import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
 type UserManagerConfig struct {
@@ -56,4 +57,8 @@ func (obj *UserManager) SaveUser(ctx context.Context, userObj *User) error {
 func (obj *UserManager) DeleteUser(ctx context.Context, userName string, passIdFromClient string) error {
 	gaeKey := obj.newUserGaeObjectKey(ctx, userName)
 	return datastore.Delete(ctx, gaeKey)
+}
+
+func Debug(ctx context.Context, message string) {
+	log.Infof(ctx, message)
 }

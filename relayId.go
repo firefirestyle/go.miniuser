@@ -8,7 +8,6 @@ import (
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	//	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 )
 
@@ -109,16 +108,16 @@ func (obj *RelayId) Save(ctx context.Context) error {
 }
 
 func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
-	sessionObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
+	relayIdObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
 
 	//
 	// new userObj
 	var err error = nil
 	var userObj *User = nil
-	if sessionObj.gaeObj.Name != "" {
+	if relayIdObj.gaeObj.Name != "" {
 		needMake = true
-		userObj, err = obj.GetUserFromUserName(ctx, sessionObj.gaeObj.Name)
+		userObj, err = obj.GetUserFromUserName(ctx, relayIdObj.gaeObj.UserName)
 		if err != nil {
 			userObj = nil
 		}
@@ -130,11 +129,11 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 
 	//
 	// set username
-	sessionObj.SetUserName(userObj.GetUserName())
+	relayIdObj.SetUserName(userObj.GetUserName())
 
 	//
 	// save relayId
-	err = sessionObj.Save(ctx)
+	err = relayIdObj.Save(ctx)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
 	}
@@ -145,18 +144,18 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save userobj : " + err.Error())
 	}
-	return needMake, sessionObj, userObj, nil
+	return needMake, relayIdObj, userObj, nil
 }
 
 func (obj *UserManager) GetRelayIdForTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
 	return obj.GetRelayIdWithNew(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
 }
 
-func (obj *UserManager) NewRelayId(ctx context.Context, identify string, //
+func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
 	userId string, identifyType string, infos map[string]string) *RelayId {
 	gaeKey := obj.NewRelayIdGaeKey(ctx, userId, identifyType)
 	gaeObj := GaeRelayIdItem{
-		Name:      identify,
+		Name:      screenName,
 		Id:        userId,
 		Type:      TypeTwitter,
 		ProjectId: obj.projectId,
@@ -208,7 +207,7 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 }
 
 func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
-	relayObj, err := obj.GetRelayId(ctx, screenName, userIdType)
+	relayObj, err := obj.GetRelayId(ctx, userId, userIdType)
 	if err != nil {
 		relayObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
 	}
