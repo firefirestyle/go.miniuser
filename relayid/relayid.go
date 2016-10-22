@@ -1,4 +1,4 @@
-package miniuser
+package relayid
 
 import (
 	"time"
@@ -34,12 +34,28 @@ type GaeRelayIdItem struct {
 	Update    time.Time
 }
 
+type RelayIdManagerConfig struct {
+	Kind      string
+	ProjectId string
+}
+
 type RelayId struct {
 	gaeObj *GaeRelayIdItem
 	gaeKey *datastore.Key
 	kind   string
 }
 
+type RelayIdManager struct {
+	kind      string
+	projectId string
+}
+
+func NewRelayIdManager(config RelayIdManagerConfig) *RelayIdManager {
+	return &RelayIdManager{
+		kind:      config.Kind,
+		projectId: config.ProjectId,
+	}
+}
 func (obj *RelayId) ToJson() []byte {
 	propObj := miniprop.NewMiniProp()
 	propObj.SetString(TypeRelayIdProjectId, obj.gaeObj.ProjectId)
@@ -47,7 +63,7 @@ func (obj *RelayId) ToJson() []byte {
 	propObj.SetString(TypeRelayIdId, obj.gaeObj.Id)
 	propObj.SetString(TypeRelayIdUserName, obj.gaeObj.UserName)
 	propObj.SetString(TypeRelayIdInfo, obj.gaeObj.Info)
-	propObj.SetTime(TypePublicInfo, obj.gaeObj.Update)
+	propObj.SetTime(TypeRelayIdUpdate, obj.gaeObj.Update)
 	return propObj.ToJson()
 }
 
@@ -58,7 +74,7 @@ func (obj *RelayId) SetValueFromJson(data []byte) {
 	obj.gaeObj.Id = propObj.GetString(TypeRelayIdId, "")
 	obj.gaeObj.UserName = propObj.GetString(TypeRelayIdUserName, "")
 	obj.gaeObj.Info = propObj.GetString(TypeRelayIdInfo, "")
-	obj.gaeObj.Update = propObj.GetTime(TypePublicInfo, time.Now())
+	obj.gaeObj.Update = propObj.GetTime(TypeRelayIdUpdate, time.Now())
 }
 
 func (obj *RelayId) UpdateMemcache(ctx context.Context) {
@@ -77,7 +93,6 @@ func (obj *RelayId) GetName() string {
 func (obj *RelayId) GetId() string {
 	return obj.gaeObj.Id
 }
-
 func (obj *RelayId) GetType() string {
 	return obj.gaeObj.Type
 }
@@ -106,15 +121,15 @@ func (obj *RelayId) Save(ctx context.Context) error {
 	return err
 }
 
-func (obj *UserManager) GetRelayIdForTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
+func (obj *RelayIdManager) GetRelayIdForTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
 	return obj.GetRelayIdWithNew(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
 }
-func (obj *UserManager) GetRelayIdAsPointer(ctx context.Context, userName string) *RelayId {
-	Debug(ctx, "GetRelayIdAsPointer ==> "+userName)
+func (obj *RelayIdManager) GetRelayIdAsPointer(ctx context.Context, userName string) *RelayId {
+	//	Debug(ctx, "GetRelayIdAsPointer ==> "+userName)
 	return obj.GetRelayIdWithNew(ctx, userName, userName, TypePointer, map[string]string{})
 }
 
-func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
+func (obj *RelayIdManager) NewRelayId(ctx context.Context, screenName string, //
 	userId string, identifyType string, infos map[string]string) *RelayId {
 	gaeKey := obj.NewRelayIdGaeKey(ctx, userId, identifyType)
 	gaeObj := GaeRelayIdItem{
@@ -132,11 +147,11 @@ func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //
 	return &RelayId{
 		gaeObj: &gaeObj,
 		gaeKey: gaeKey,
-		kind:   obj.userKind,
+		kind:   obj.kind,
 	}
 }
 
-func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
+func (obj *RelayIdManager) GetRelayId(ctx context.Context, identify string, identifyType string) (*RelayId, error) {
 	gaeKey := obj.NewRelayIdGaeKey(ctx, identify, identifyType)
 	gaeObj := GaeRelayIdItem{}
 
@@ -147,7 +162,7 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 		ret := &RelayId{
 			gaeObj: &gaeObj,
 			gaeKey: gaeKey,
-			kind:   obj.relayIdKind,
+			kind:   obj.kind,
 		}
 		ret.SetValueFromJson(memItemObj.Value)
 		return ret, nil
@@ -161,7 +176,7 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 	ret := &RelayId{
 		gaeObj: &gaeObj,
 		gaeKey: gaeKey,
-		kind:   obj.relayIdKind,
+		kind:   obj.kind,
 	}
 	//
 	//
@@ -169,7 +184,7 @@ func (obj *UserManager) GetRelayId(ctx context.Context, identify string, identif
 	return ret, nil
 }
 
-func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
+func (obj *RelayIdManager) GetRelayIdWithNew(ctx context.Context, screenName string, userId string, userIdType string, infos map[string]string) *RelayId {
 	relayObj, err := obj.GetRelayId(ctx, userId, userIdType)
 	if err != nil {
 		relayObj = obj.NewRelayId(ctx, screenName, userId, userIdType, infos)
@@ -184,10 +199,10 @@ func (obj *UserManager) GetRelayIdWithNew(ctx context.Context, screenName string
 	return relayObj
 }
 
-func (obj *UserManager) NewRelayIdGaeKey(ctx context.Context, identify string, identifyType string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.relayIdKind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
+func (obj *RelayIdManager) NewRelayIdGaeKey(ctx context.Context, identify string, identifyType string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.kind, obj.MakeRelayIdStringId(identify, identifyType), 0, nil)
 }
 
-func (obj *UserManager) MakeRelayIdStringId(identify string, identifyType string) string {
-	return obj.relayIdKind + ":" + obj.projectId + ":" + identifyType + ":" + identify
+func (obj *RelayIdManager) MakeRelayIdStringId(identify string, identifyType string) string {
+	return obj.kind + ":" + obj.projectId + ":" + identifyType + ":" + identify
 }

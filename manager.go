@@ -1,6 +1,7 @@
 package miniuser
 
 import (
+	"github.com/firefirestyle/go.miniuser/relayid"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -17,6 +18,7 @@ type UserManager struct {
 	userKind       string
 	relayIdKind    string
 	limitOfFinding int
+	relayIdMgr     *relayid.RelayIdManager
 }
 
 func NewUserManager(config UserManagerConfig) *UserManager {
@@ -25,6 +27,10 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 	obj.userKind = config.UserKind
 	obj.relayIdKind = config.RelayIdKind
 	obj.limitOfFinding = 10
+	obj.relayIdMgr = relayid.NewRelayIdManager(relayid.RelayIdManagerConfig{
+		Kind:      obj.relayIdKind,
+		ProjectId: obj.projectId,
+	})
 	return obj
 }
 
