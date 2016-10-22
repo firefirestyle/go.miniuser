@@ -28,8 +28,8 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
-	usrObj, userErr := obj.manager.GetUserFromUserName(ctx, userName)
-
+	usrObj, userErr := obj.manager.GetUserFromUserNamePointer(ctx, userName)
+	Debug(ctx, "##>"+usrObj.GetDisplayName())
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not found User"))

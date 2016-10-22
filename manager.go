@@ -46,6 +46,8 @@ func (obj *UserManager) NewNewUser(ctx context.Context) *User {
 
 func (obj *UserManager) GetUserFromUserName(ctx context.Context, userName string) (*User, error) {
 	userObj := obj.newUser(ctx, userName)
+	Debug(ctx, "GetUserFromUserName :"+userName)
+
 	e := userObj.loadFromDB(ctx)
 	return userObj, e
 }
@@ -54,7 +56,7 @@ func (obj *UserManager) SaveUser(ctx context.Context, userObj *User) error {
 	return userObj.pushToDB(ctx)
 }
 
-func (obj *UserManager) DeleteUser(ctx context.Context, userName string, passIdFromClient string) error {
+func (obj *UserManager) DeleteUser(ctx context.Context, userName string) error {
 	gaeKey := obj.newUserGaeObjectKey(ctx, userName)
 	return datastore.Delete(ctx, gaeKey)
 }

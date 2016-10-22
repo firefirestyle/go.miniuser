@@ -3,8 +3,6 @@ package miniuser
 import (
 	"time"
 
-	"errors"
-
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -13,6 +11,7 @@ import (
 
 const (
 	TypeTwitter = "twitter"
+	TypePointer = "pointer"
 )
 
 const (
@@ -107,48 +106,12 @@ func (obj *RelayId) Save(ctx context.Context) error {
 	return err
 }
 
-func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *RelayId, *User, error) {
-	relayIdObj := obj.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
-	needMake := false
-
-	//
-	// new userObj
-	var err error = nil
-	var userObj *User = nil
-	if relayIdObj.gaeObj.Name != "" {
-		needMake = true
-		userObj, err = obj.GetUserFromUserName(ctx, relayIdObj.gaeObj.UserName)
-		if err != nil {
-			userObj = nil
-		}
-	}
-	if userObj == nil {
-		userObj = obj.NewNewUser(ctx)
-		userObj.SetDisplayName(screenName)
-	}
-
-	//
-	// set username
-	relayIdObj.SetUserName(userObj.GetUserName())
-
-	//
-	// save relayId
-	err = relayIdObj.Save(ctx)
-	if err != nil {
-		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
-	}
-
-	//
-	// save user
-	err = obj.SaveUser(ctx, userObj)
-	if err != nil {
-		return needMake, nil, nil, errors.New("failed to save userobj : " + err.Error())
-	}
-	return needMake, relayIdObj, userObj, nil
-}
-
 func (obj *UserManager) GetRelayIdForTwitter(ctx context.Context, screenName string, userId string, oauthToken string) *RelayId {
 	return obj.GetRelayIdWithNew(ctx, screenName, userId, TypeTwitter, map[string]string{"token": oauthToken})
+}
+func (obj *UserManager) GetRelayIdAsPointer(ctx context.Context, userName string) *RelayId {
+	Debug(ctx, "GetRelayIdAsPointer ==> "+userName)
+	return obj.GetRelayIdWithNew(ctx, userName, userName, TypePointer, map[string]string{})
 }
 
 func (obj *UserManager) NewRelayId(ctx context.Context, screenName string, //

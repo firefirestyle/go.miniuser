@@ -9,13 +9,14 @@ import (
 
 	"encoding/base64"
 
+	"strconv"
+	"strings"
+
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
-
-	"strconv"
 )
 
 const (
@@ -123,20 +124,28 @@ func (userObj *User) SetUserFromsJson(ctx context.Context, source string) error 
 		return e
 	}
 	//
-	userObj.gaeObject.ProjectId = getStringFromProp(v, TypeProjectId, "")
-	userObj.gaeObject.DisplayName = v[TypeDisplayName].(string)
-	userObj.gaeObject.UserName = v[TypeUserName].(string)
-	userObj.gaeObject.Created = time.Now()
-	userObj.gaeObject.Logined = time.Now()
-	userObj.gaeObject.Created = time.Unix(0, int64(v[TypeCreated].(float64))) //srcCreated
-	userObj.gaeObject.Logined = time.Unix(0, int64(v[TypeLogined].(float64))) //srcLogin
-	userObj.gaeObject.State = v[TypeState].(string)
-	userObj.gaeObject.PublicInfo = v[TypePublicInfo].(string)
-	userObj.gaeObject.PrivateInfo = v[TypePrivateInfo].(string)
-	userObj.gaeObject.Point = int(v[TypePoint].(float64))
-	userObj.gaeObject.IconUrl = v[TypeIconUrl].(string)
-
+	userObj.SetUserFromsMap(ctx, v)
 	return nil
+}
+
+func (userObj *User) CopyWithoutuserName(ctx context.Context, copyObj *User) {
+	itemInfo := userObj.ToMapAll()
+	itemInfo[TypeUserName] = copyObj.GetUserName()
+	copyObj.SetUserFromsMap(ctx, itemInfo)
+}
+
+func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface{}) {
+	propObj := miniprop.NewMiniPropFromMap(v)
+	userObj.gaeObject.ProjectId = propObj.GetString(TypeProjectId, "")
+	userObj.gaeObject.DisplayName = propObj.GetString(TypeDisplayName, "")
+	userObj.gaeObject.UserName = propObj.GetString(TypeUserName, "")
+	userObj.gaeObject.Created = propObj.GetTime(TypeCreated, time.Now()) //srcCreated
+	userObj.gaeObject.Logined = propObj.GetTime(TypeLogined, time.Now()) //time.Unix(0, int64(v[TypeLogined].(float64))) //srcLogin
+	userObj.gaeObject.State = propObj.GetString(TypeState, "")
+	userObj.gaeObject.PublicInfo = propObj.GetString(TypePublicInfo, "")
+	userObj.gaeObject.PrivateInfo = propObj.GetString(TypePrivateInfo, "")
+	userObj.gaeObject.Point = propObj.GetInt(TypePoint, 0)
+	userObj.gaeObject.IconUrl = propObj.GetString(TypeIconUrl, "")
 }
 
 func (obj *User) ToMapPublic() map[string]interface{} {
@@ -185,6 +194,10 @@ func (obj *User) deleteMemcache(ctx context.Context) error {
 
 //
 //
+func (obj *User) GetOriginalUserName() string {
+	return strings.Split(obj.gaeObject.UserName, "::sign::")[0]
+}
+
 func (obj *User) GetUserName() string {
 	return obj.gaeObject.UserName
 }
