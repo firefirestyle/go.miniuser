@@ -1,26 +1,27 @@
-package miniuser
+package hundler
 
 import (
 	"net/http"
 
 	"github.com/firefirestyle/go.miniprop"
+	"github.com/firefirestyle/go.miniuser"
 	"google.golang.org/appengine"
 )
 
 type UserHandler struct {
-	manager *UserManager
+	manager *miniuser.UserManager
 }
 
 type UserHandlerOnEvent struct {
 }
 
-func NewUserHandler(config UserManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
+func NewUserHandler(config miniuser.UserManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
 	return &UserHandler{
-		manager: NewUserManager(config),
+		manager: miniuser.NewUserManager(config),
 	}
 }
 
-func (obj *UserHandler) GetManager() *UserManager {
+func (obj *UserHandler) GetManager() *miniuser.UserManager {
 	return obj.manager
 }
 
@@ -29,7 +30,6 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	userName := values.Get("userName")
 	usrObj, userErr := obj.manager.GetUserFromUserNamePointer(ctx, userName)
-	Debug(ctx, "##>"+usrObj.GetDisplayName())
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not found User"))
