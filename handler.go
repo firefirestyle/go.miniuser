@@ -3,6 +3,7 @@ package miniuser
 import (
 	"net/http"
 
+	"github.com/firefirestyle/go.miniprop"
 	"google.golang.org/appengine"
 )
 
@@ -47,20 +48,22 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
-	/*
-		ctx := appengine.NewContext(r)
-		values := r.URL.Query()
-		cursor := values.Get("cursor")
-		mode := values.Get("keyOnly")
-		keyOnly := false
-		if mode == "1" {
-			keyOnly = true
-		}
-		// foundObj :=
-		if keyOnly == true {
-			foundObj := obj.manager.FindUserWithNewOrder(ctx, cursor, keyOnly)
-			//		w.Write(foundObj.UserIds)
-		} else {
+	propObj := miniprop.NewMiniProp()
+	ctx := appengine.NewContext(r)
+	values := r.URL.Query()
+	cursor := values.Get("cursor")
+	mode := values.Get("keyOnly")
+	keyOnly := false
+	if mode != "0" {
+		keyOnly = true
+	}
 
-		}*/
+	foundObj := obj.manager.FindUserWithNewOrder(ctx, cursor, keyOnly)
+	propObj.SetPropStringList("", "keys", foundObj.UserIds)
+	propObj.SetPropString("", "cursorOne", foundObj.CursorOne)
+	propObj.SetPropString("", "cursorOne", foundObj.CursorNext)
+	if keyOnly == false {
+		// todo
+	}
+	w.Write(propObj.ToJson())
 }

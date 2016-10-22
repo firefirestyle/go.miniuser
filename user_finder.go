@@ -75,13 +75,17 @@ func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datasto
 		if err != nil || err == datastore.Done {
 			break
 		} else {
-			userObj := obj.newUserFromStringID(ctx, key.StringID())
-			errLoadUserObj := userObj.loadFromDB(ctx)
-			if errLoadUserObj != nil {
-				log.Infof(ctx, "Failed LoadFromDB on FindUserFromQuery "+key.StringID())
-			} else {
-				userObjList = append(userObjList, userObj)
+			if keyOnly == true {
 				userIdsList = append(userIdsList, key.StringID())
+			} else {
+				userObj := obj.newUserFromStringID(ctx, key.StringID())
+				errLoadUserObj := userObj.loadFromDB(ctx)
+				if errLoadUserObj != nil {
+					log.Infof(ctx, "Failed LoadFromDB on FindUserFromQuery "+key.StringID())
+				} else {
+					userObjList = append(userObjList, userObj)
+					userIdsList = append(userIdsList, key.StringID())
+				}
 			}
 		}
 		if i == 0 {
