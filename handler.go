@@ -45,3 +45,22 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
+	/*
+		ctx := appengine.NewContext(r)
+		values := r.URL.Query()
+		cursor := values.Get("cursor")
+		mode := values.Get("keyOnly")
+		keyOnly := false
+		if mode == "1" {
+			keyOnly = true
+		}
+		// foundObj :=
+		if keyOnly == true {
+			foundObj := obj.manager.FindUserWithNewOrder(ctx, cursor, keyOnly)
+			//		w.Write(foundObj.UserIds)
+		} else {
+
+		}*/
+}

@@ -29,26 +29,33 @@ func (obj *UserManager) makeCursorSrc(founds *datastore.Iterator) string {
 
 //
 //
-func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string) ([]*User, string, string) {
+func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	q = q.Filter("ProjectId =", obj.projectId)
 	q = q.Filter("State =", UserStatePublic)
 	q = q.Limit(obj.limitOfFinding)
-	return obj.FindUserFromQuery(ctx, q, cursorSrc)
+	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
-func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string) ([]*User, string, string) {
+func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	q = q.Filter("ProjectId =", obj.projectId)
 	q = q.Filter("State =", UserStatePublic)
 	q = q.Order("-Point")
 	q = q.Limit(obj.limitOfFinding)
-	return obj.FindUserFromQuery(ctx, q, cursorSrc)
+	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
 //
 //
-func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datastore.Query, cursorSrc string) ([]*User, string, string) {
+type FoundUser struct {
+	Users      []*User
+	UserIds    []string
+	CursorOne  string
+	CursorNext string
+}
+
+func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datastore.Query, cursorSrc string, keyOnly bool) *FoundUser {
 	cursor := obj.newCursorFromSrc(cursorSrc)
 	if cursor != nil {
 		queryObj = queryObj.Start(*cursor)
@@ -56,6 +63,7 @@ func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datasto
 	queryObj = queryObj.KeysOnly()
 
 	var userObjList []*User
+	var userIdsList []string
 
 	founds := queryObj.Run(ctx)
 
@@ -73,6 +81,7 @@ func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datasto
 				log.Infof(ctx, "Failed LoadFromDB on FindUserFromQuery "+key.StringID())
 			} else {
 				userObjList = append(userObjList, userObj)
+				userIdsList = append(userIdsList, key.StringID())
 			}
 		}
 		if i == 0 {
@@ -80,5 +89,10 @@ func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datasto
 		}
 	}
 	cursorNext = obj.makeCursorSrc(founds)
-	return userObjList, cursorOne, cursorNext
+	return &FoundUser{
+		Users:      userObjList,
+		UserIds:    userIdsList,
+		CursorOne:  cursorOne,
+		CursorNext: cursorNext,
+	}
 }
