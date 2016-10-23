@@ -32,7 +32,7 @@ func (obj *UserManager) makeCursorSrc(founds *datastore.Iterator) string {
 func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	q = q.Filter("ProjectId =", obj.projectId)
-	q = q.Filter("State =", UserStatePublic)
+	//q = q.Filter("State =", UserStatePublic)
 	q = q.Limit(obj.limitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
@@ -40,7 +40,7 @@ func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc stri
 func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	q = q.Filter("ProjectId =", obj.projectId)
-	q = q.Filter("State =", UserStatePublic)
+	//q = q.Filter("State =", UserStatePublic)
 	q = q.Order("-Point")
 	q = q.Limit(obj.limitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
@@ -76,6 +76,7 @@ func (obj *UserManager) FindUserFromQuery(ctx context.Context, queryObj *datasto
 			break
 		} else {
 			if keyOnly == true {
+				log.Infof(ctx, ">>key>>"+key.StringID())
 				userIdsList = append(userIdsList, key.StringID())
 			} else {
 				userObj := obj.newUserFromStringID(ctx, key.StringID())
