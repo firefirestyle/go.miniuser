@@ -8,24 +8,20 @@ import (
 )
 
 type UserManagerConfig struct {
-	ProjectId   string
-	UserKind    string
-	RelayIdKind string
+	ProjectId string
+	UserKind  string
 }
 
 type UserManager struct {
 	projectId      string
 	userKind       string
-	relayIdKind    string
 	limitOfFinding int
-	//	relayIdMgr     *relayid.RelayIdManager
 }
 
 func NewUserManager(config UserManagerConfig) *UserManager {
 	obj := new(UserManager)
 	obj.projectId = config.ProjectId
 	obj.userKind = config.UserKind
-	obj.relayIdKind = config.RelayIdKind
 	obj.limitOfFinding = 10
 
 	return obj
@@ -37,10 +33,6 @@ func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string) string {
 
 func (obj *UserManager) GetUserKind() string {
 	return obj.userKind
-}
-
-func (obj *UserManager) GetLoginIdKind() string {
-	return obj.relayIdKind
 }
 
 func (obj *UserManager) NewNewUser(ctx context.Context) *User {

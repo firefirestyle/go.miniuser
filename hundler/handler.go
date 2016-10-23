@@ -14,12 +14,21 @@ type UserHandler struct {
 	relayIdMgr *relayid.RelayIdManager
 }
 
+type UserHandlerManagerConfig struct {
+	ProjectId   string
+	UserKind    string
+	RelayIdKind string
+}
+
 type UserHandlerOnEvent struct {
 }
 
-func NewUserHandler(config miniuser.UserManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
+func NewUserHandler(config UserHandlerManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
 	return &UserHandler{
-		manager: miniuser.NewUserManager(config),
+		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
+			ProjectId: config.ProjectId,
+			UserKind:  config.UserKind,
+		}),
 		relayIdMgr: relayid.NewRelayIdManager( //
 			relayid.RelayIdManagerConfig{
 				Kind:      config.RelayIdKind,
@@ -36,7 +45,7 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
-	usrObj, userErr := obj.GetUserFromUserNamePointer(ctx, userName)
+	usrObj, userErr := obj.GetUserFromUserNameAndRelayId(ctx, userName)
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not found User"))

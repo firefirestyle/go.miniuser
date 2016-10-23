@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (obj *UserHandler) SaveUserFromSession(ctx context.Context, userObj *miniuser.User) error {
+func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *miniuser.User) error {
 	// init
 	userName := strings.Split(userObj.GetUserName(), "::sign::")[0]
 	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName+"::sign::"+strconv.Itoa(time.Now().Nanosecond()))
@@ -32,7 +32,7 @@ func (obj *UserHandler) SaveUserFromSession(ctx context.Context, userObj *minius
 	return nil
 }
 
-func (obj *UserHandler) GetUserFromUserNamePointer(ctx context.Context, userName string) (*miniuser.User, error) {
+func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
 	//	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 	pointerObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 	if pointerObj.GetUserName() == "" {
