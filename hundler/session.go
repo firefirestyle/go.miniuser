@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/firefirestyle/go.miniuser"
 	"github.com/firefirestyle/go.miniuser/relayid"
+	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
 )
 

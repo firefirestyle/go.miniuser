@@ -5,8 +5,8 @@ import (
 
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
-	"github.com/firefirestyle/go.miniuser"
 	"github.com/firefirestyle/go.miniuser/relayid"
+	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"google.golang.org/appengine"
 )
 
@@ -42,6 +42,10 @@ func NewUserHandler(config UserHandlerManagerConfig, onEvents UserHandlerOnEvent
 			ProjectId: config.ProjectId,
 		}),
 	}
+}
+
+func (obj *UserHandler) GetSessionMgr() *minisession.SessionManager {
+	return obj.sessionMgr
 }
 
 func (obj *UserHandler) GetManager() *miniuser.UserManager {

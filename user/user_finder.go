@@ -1,4 +1,4 @@
-package miniuser
+package user
 
 import (
 	"golang.org/x/net/context"

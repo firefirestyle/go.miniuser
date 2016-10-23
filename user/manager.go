@@ -1,4 +1,4 @@
-package miniuser
+package user
 
 import (
 	//	"github.com/firefirestyle/go.miniuser/relayid"
