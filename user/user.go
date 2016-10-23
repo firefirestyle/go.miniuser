@@ -58,11 +58,11 @@ type User struct {
 // new object
 // ----
 
-func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName), 0, nil)
+func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string, sign string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
 }
 
-func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
+func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *User {
 	var userObj *User = nil
 	var err error = nil
 	for {
@@ -71,7 +71,7 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 		io.WriteString(hashObj, miniprop.MakeRandomId())
 		io.WriteString(hashObj, strconv.FormatInt(now, 36))
 		userName := string(base64.StdEncoding.EncodeToString(hashObj.Sum(nil)))
-		userObj, err = obj.GetUserFromUserName(ctx, userName)
+		userObj, err = obj.GetUserFromUserName(ctx, userName, sign)
 		if err != nil {
 			break
 		}
@@ -79,7 +79,7 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 	return userObj
 }
 
-func (obj *UserManager) newUser(ctx context.Context, userName string) *User {
+func (obj *UserManager) newUser(ctx context.Context, userName string, sign string) *User {
 	ret := new(User)
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.userKind
@@ -87,7 +87,7 @@ func (obj *UserManager) newUser(ctx context.Context, userName string) *User {
 	ret.gaeObject.ProjectId = obj.projectId
 
 	ret.gaeObject.UserName = userName
-	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName)
+	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
 	return ret
 }
 

@@ -3,7 +3,7 @@ package hundler
 import (
 	"errors"
 
-	"strings"
+	//	"strings"
 
 	"strconv"
 	"time"
@@ -15,8 +15,9 @@ import (
 
 func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *miniuser.User) error {
 	// init
-	userName := strings.Split(userObj.GetUserName(), "::sign::")[0]
-	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName+"::sign::"+strconv.Itoa(time.Now().Nanosecond()))
+	userName := userObj.GetUserName()
+	sign := strconv.Itoa(time.Now().Nanosecond())
+	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName, sign)
 
 	Debug(ctx, "SaveUserFromSession :"+userName+":"+nextUserObj.GetUserName()+":"+userObj.GetUserName())
 	replayObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
@@ -28,11 +29,12 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 		return nil
 	}
 	replayObj.SetUserName(nextUserObj.GetUserName())
+	replayObj.SetSign(sign)
 	replayObj.Save(ctx)
 
 	//
 	obj.manager.SaveUser(ctx, nextUserObj)
-	if nil != obj.manager.DeleteUser(ctx, userObj.GetUserName()) {
+	if nil != obj.manager.DeleteUser(ctx, userObj.GetUserName(), replayObj.GetSign()) {
 		Debug(ctx, "SaveUserFromSession Delete failed 2: "+userObj.GetUserName())
 	}
 	return nil
@@ -46,7 +48,7 @@ func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userN
 		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
 		return nil, errors.New("not found")
 	}
-	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName())
+	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
 }
 
 func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *miniuser.User, error) {
@@ -63,18 +65,19 @@ func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName s
 		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, relayIdObj.GetUserName())
 		if pointerObj.GetUserName() != "" {
-			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName())
+			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
 			if err != nil {
 				userObj = nil
 			}
 		}
 	}
 	if userObj == nil {
-		userObj = obj.GetManager().NewNewUser(ctx)
+		userObj = obj.GetManager().NewNewUser(ctx, "")
 		userObj.SetDisplayName(screenName)
 		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, userObj.GetUserName())
 		pointerObj.SetUserName(userObj.GetUserName())
+		pointerObj.SetSign("")
 		err := pointerObj.Save(ctx)
 		if err != nil {
 			return needMake, nil, nil, errors.New("failed to save pointreobj : " + err.Error())

@@ -22,6 +22,7 @@ const (
 	TypeRelayIdUserName  = "UserName"
 	TypeRelayIdInfo      = "Info"
 	TypeRelayIdUpdate    = "Update"
+	TypeRelayIdSign      = "Sign"
 )
 
 type GaeRelayIdItem struct {
@@ -32,6 +33,7 @@ type GaeRelayIdItem struct {
 	UserName  string
 	Info      string
 	Update    time.Time
+	Sign      string
 }
 
 type RelayIdManagerConfig struct {
@@ -65,6 +67,7 @@ func (obj *RelayId) ToJson() []byte {
 	propObj.SetString(TypeRelayIdUserName, obj.gaeObj.UserName)
 	propObj.SetString(TypeRelayIdInfo, obj.gaeObj.Info)
 	propObj.SetTime(TypeRelayIdUpdate, obj.gaeObj.Update)
+	propObj.SetString(TypeRelayIdSign, obj.gaeObj.Sign)
 	return propObj.ToJson()
 }
 
@@ -76,6 +79,7 @@ func (obj *RelayId) SetValueFromJson(data []byte) {
 	obj.gaeObj.UserName = propObj.GetString(TypeRelayIdUserName, "")
 	obj.gaeObj.Info = propObj.GetString(TypeRelayIdInfo, "")
 	obj.gaeObj.Update = propObj.GetTime(TypeRelayIdUpdate, time.Now())
+	obj.gaeObj.Sign = propObj.GetString(TypeRelayIdSign, "")
 }
 
 func (obj *RelayId) UpdateMemcache(ctx context.Context) {
@@ -104,6 +108,14 @@ func (obj *RelayId) GetUserName() string {
 
 func (obj *RelayId) SetUserName(v string) {
 	obj.gaeObj.UserName = v
+}
+
+func (obj *RelayId) GetSign() string {
+	return obj.gaeObj.Sign
+}
+
+func (obj *RelayId) SetSign(v string) {
+	obj.gaeObj.Sign = v
 }
 
 func (obj *RelayId) GetInfo() string {

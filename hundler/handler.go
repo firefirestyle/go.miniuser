@@ -3,7 +3,7 @@ package hundler
 import (
 	"net/http"
 
-	"strings"
+	//	"strings"
 
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
@@ -60,7 +60,6 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
-	userName = strings.Split(userName, "::sign::")[0]
 	usrObj, userErr := obj.GetUserFromUserNameAndRelayId(ctx, userName)
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)

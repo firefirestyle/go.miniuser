@@ -27,20 +27,20 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 	return obj
 }
 
-func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string) string {
-	return obj.userKind + ":" + obj.projectId + ":" + userName
+func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign string) string {
+	return obj.userKind + ":" + obj.projectId + ":" + userName + "::sign::" + sign
 }
 
 func (obj *UserManager) GetUserKind() string {
 	return obj.userKind
 }
 
-func (obj *UserManager) NewNewUser(ctx context.Context) *User {
-	return obj.newUserWithUserName(ctx)
+func (obj *UserManager) NewNewUser(ctx context.Context, sign string) *User {
+	return obj.newUserWithUserName(ctx, sign)
 }
 
-func (obj *UserManager) GetUserFromUserName(ctx context.Context, userName string) (*User, error) {
-	userObj := obj.newUser(ctx, userName)
+func (obj *UserManager) GetUserFromUserName(ctx context.Context, userName string, sign string) (*User, error) {
+	userObj := obj.newUser(ctx, userName, sign)
 	Debug(ctx, "GetUserFromUserName :"+userName)
 
 	e := userObj.loadFromDB(ctx)
@@ -51,8 +51,8 @@ func (obj *UserManager) SaveUser(ctx context.Context, userObj *User) error {
 	return userObj.pushToDB(ctx)
 }
 
-func (obj *UserManager) DeleteUser(ctx context.Context, userName string) error {
-	gaeKey := obj.newUserGaeObjectKey(ctx, userName)
+func (obj *UserManager) DeleteUser(ctx context.Context, userName string, sign string) error {
+	gaeKey := obj.newUserGaeObjectKey(ctx, userName, sign)
 	return datastore.Delete(ctx, gaeKey)
 }
 
