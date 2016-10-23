@@ -1,4 +1,4 @@
-package miniuser
+package hundler
 
 import (
 	"errors"
@@ -8,15 +8,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/firefirestyle/go.miniuser"
 	"github.com/firefirestyle/go.miniuser/relayid"
 	"golang.org/x/net/context"
 )
 
-func (obj *UserManager) SaveUserFromSession(ctx context.Context, userObj *User) error {
+func (obj *UserHandler) SaveUserFromSession(ctx context.Context, userObj *miniuser.User) error {
 	// init
 	userName := strings.Split(userObj.GetUserName(), "::sign::")[0]
-	nextUserObj := obj.newUser(ctx, userName+"::sign::"+strconv.Itoa(time.Now().Nanosecond()))
-	Debug(ctx, "SaveUserFromSession :"+userName)
+	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName+"::sign::"+strconv.Itoa(time.Now().Nanosecond()))
+
+	//	Debug(ctx, "SaveUserFromSession :"+userName)
 	replayObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 
 	// copy
@@ -25,44 +27,44 @@ func (obj *UserManager) SaveUserFromSession(ctx context.Context, userObj *User) 
 	replayObj.Save(ctx)
 
 	//
-	obj.SaveUser(ctx, nextUserObj)
-	obj.DeleteUser(ctx, userObj.GetUserName())
-	return userObj.pushToDB(ctx)
+	obj.manager.SaveUser(ctx, nextUserObj)
+	obj.manager.DeleteUser(ctx, userObj.GetUserName())
+	return nil
 }
 
-func (obj *UserManager) GetUserFromUserNamePointer(ctx context.Context, userName string) (*User, error) {
-	Debug(ctx, "SaveUserFromNamePointer :"+userName)
+func (obj *UserHandler) GetUserFromUserNamePointer(ctx context.Context, userName string) (*miniuser.User, error) {
+	//	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 	pointerObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 	if pointerObj.GetUserName() == "" {
 		return nil, errors.New("not found")
 	}
-	return obj.GetUserFromUserName(ctx, pointerObj.GetId())
+	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetId())
 }
 
-func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *User, error) {
+func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *miniuser.User, error) {
 	relayIdObj := obj.relayIdMgr.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
 
 	//
 	// new userObj
 	var err error = nil
-	var userObj *User = nil
+	var userObj *miniuser.User = nil
 	var pointerObj *relayid.RelayId = nil
 	if relayIdObj.GetUserName() != "" {
 		needMake = true
-		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
+		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, relayIdObj.GetUserName())
 		if pointerObj.GetUserName() != "" {
-			userObj, err = obj.GetUserFromUserName(ctx, pointerObj.GetUserName())
+			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName())
 			if err != nil {
 				userObj = nil
 			}
 		}
 	}
 	if userObj == nil {
-		userObj = obj.NewNewUser(ctx)
+		userObj = obj.GetManager().NewNewUser(ctx)
 		userObj.SetDisplayName(screenName)
-		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
+		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, userObj.GetUserName())
 		pointerObj.SetUserName(userObj.GetUserName())
 		err := pointerObj.Save(ctx)
@@ -83,7 +85,7 @@ func (obj *UserManager) LoginRegistFromTwitter(ctx context.Context, screenName s
 
 	//
 	// save user
-	err = obj.SaveUser(ctx, userObj)
+	err = obj.GetManager().SaveUser(ctx, userObj)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save userobj : " + err.Error())
 	}

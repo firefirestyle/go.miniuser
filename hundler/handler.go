@@ -5,11 +5,13 @@ import (
 
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.miniuser"
+	"github.com/firefirestyle/go.miniuser/relayid"
 	"google.golang.org/appengine"
 )
 
 type UserHandler struct {
-	manager *miniuser.UserManager
+	manager    *miniuser.UserManager
+	relayIdMgr *relayid.RelayIdManager
 }
 
 type UserHandlerOnEvent struct {
@@ -18,6 +20,11 @@ type UserHandlerOnEvent struct {
 func NewUserHandler(config miniuser.UserManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
 	return &UserHandler{
 		manager: miniuser.NewUserManager(config),
+		relayIdMgr: relayid.NewRelayIdManager( //
+			relayid.RelayIdManagerConfig{
+				Kind:      config.RelayIdKind,
+				ProjectId: config.ProjectId,
+			}),
 	}
 }
 
@@ -29,7 +36,7 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
-	usrObj, userErr := obj.manager.GetUserFromUserNamePointer(ctx, userName)
+	usrObj, userErr := obj.GetUserFromUserNamePointer(ctx, userName)
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not found User"))

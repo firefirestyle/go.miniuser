@@ -56,6 +56,7 @@ func NewRelayIdManager(config RelayIdManagerConfig) *RelayIdManager {
 		projectId: config.ProjectId,
 	}
 }
+
 func (obj *RelayId) ToJson() []byte {
 	propObj := miniprop.NewMiniProp()
 	propObj.SetString(TypeRelayIdProjectId, obj.gaeObj.ProjectId)
