@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/firefirestyle/go.miniprop"
+	"github.com/firefirestyle/go.minisession"
 	"github.com/firefirestyle/go.miniuser"
 	"github.com/firefirestyle/go.miniuser/relayid"
 	"google.golang.org/appengine"
@@ -12,12 +13,14 @@ import (
 type UserHandler struct {
 	manager    *miniuser.UserManager
 	relayIdMgr *relayid.RelayIdManager
+	sessionMgr *minisession.SessionManager
 }
 
 type UserHandlerManagerConfig struct {
 	ProjectId   string
 	UserKind    string
 	RelayIdKind string
+	SessionKind string
 }
 
 type UserHandlerOnEvent struct {
@@ -34,6 +37,10 @@ func NewUserHandler(config UserHandlerManagerConfig, onEvents UserHandlerOnEvent
 				Kind:      config.RelayIdKind,
 				ProjectId: config.ProjectId,
 			}),
+		sessionMgr: minisession.NewSessionManager(minisession.SessionManagerConfig{
+			Kind:      config.SessionKind,
+			ProjectId: config.ProjectId,
+		}),
 	}
 }
 
