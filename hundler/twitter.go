@@ -28,12 +28,12 @@ func (obj *UserHandler) GetTwitterHandlerObj(ctx context.Context, callbackAddr s
 				//
 				//
 				tokenObj, err := obj.sessionMgr.Login(ctx, //
-					userObj.GetOriginalUserName(), //
+					userObj.GetUserName(), //
 					minisession.MakeAccessTokenConfigFromRequest(r))
 				if err != nil {
 					return map[string]string{"errcode": "1"}
 				} else {
-					return map[string]string{"token": "" + tokenObj.GetLoginId(), "userName": userObj.GetOriginalUserName()}
+					return map[string]string{"token": "" + tokenObj.GetLoginId(), "userName": userObj.GetUserName()}
 				}
 			},
 		})

@@ -17,30 +17,27 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	// init
 	userName := userObj.GetUserName()
 	sign := strconv.Itoa(time.Now().Nanosecond())
-	Debug(ctx, "SaveUserWithImmutable SIGN 1:"+sign)
 	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName, sign)
 
-	Debug(ctx, "SaveUserFromSession :"+userName+":"+nextUserObj.GetUserName()+":"+userObj.GetUserName())
 	replayObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 	currentSign := replayObj.GetSign()
 
 	// copy
 	userObj.CopyWithoutuserName(ctx, nextUserObj)
 	if nil != obj.manager.SaveUser(ctx, nextUserObj) {
-		Debug(ctx, "SaveUserFromSession Delete failed 1: "+userObj.GetUserName())
 		return nil
 	}
 	replayObj.SetUserName(nextUserObj.GetUserName())
 	replayObj.SetSign(sign)
 	replayObj.Save(ctx)
-	Debug(ctx, "SaveUserWithImmutable SIGN 2:"+sign)
 	//
 	err1 := obj.manager.SaveUser(ctx, nextUserObj)
 	if nil != err1 {
-		Debug(ctx, "SaveUserWithImmutable SIGN ERR:"+err1.Error())
+		return err1
 	}
-	if nil != obj.manager.DeleteUser(ctx, userObj.GetUserName(), currentSign) {
-		Debug(ctx, "SaveUserFromSession Delete failed 2: "+userObj.GetUserName())
+	err2 := obj.manager.DeleteUser(ctx, userObj.GetUserName(), currentSign)
+	if nil != err2 {
+		return err2
 	}
 	return nil
 }

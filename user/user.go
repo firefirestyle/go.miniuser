@@ -5,10 +5,9 @@ import (
 	"io"
 	"time"
 
-	"encoding/base64"
+	"encoding/base32"
 
 	"strconv"
-	"strings"
 
 	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
@@ -71,7 +70,7 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *U
 		now := time.Now().UnixNano()
 		io.WriteString(hashObj, miniprop.MakeRandomId())
 		io.WriteString(hashObj, strconv.FormatInt(now, 36))
-		userName := string(base64.StdEncoding.EncodeToString(hashObj.Sum(nil)))
+		userName := string(base32.StdEncoding.EncodeToString(hashObj.Sum(nil)))
 		userObj, err = obj.GetUserFromUserName(ctx, userName, sign)
 		if err != nil {
 			break
@@ -106,10 +105,6 @@ func (obj *UserManager) newUserFromStringID(ctx context.Context, stringId string
 // ----
 // getter setter
 // ----
-
-func (obj *User) GetOriginalUserName() string {
-	return strings.Split(obj.gaeObject.UserName, "::sign::")[0]
-}
 
 func (obj *User) GetUserName() string {
 	return obj.gaeObject.UserName

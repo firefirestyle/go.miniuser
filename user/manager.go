@@ -2,6 +2,7 @@ package user
 
 import (
 	//	"github.com/firefirestyle/go.miniuser/relayid"
+	//	"github.com/firefirestyle/go.miniprop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -28,7 +29,7 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 }
 
 func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign string) string {
-	return obj.userKind + ":" + obj.projectId + ":" + userName + ":" + sign
+	return "k:" + obj.userKind + ";p:" + obj.projectId + ";n:" + userName + ";s:" + sign + ";"
 }
 
 func (obj *UserManager) GetUserKind() string {
