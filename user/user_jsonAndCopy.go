@@ -34,7 +34,7 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.DisplayName = propObj.GetString(TypeDisplayName, "")
 	userObj.gaeObject.UserName = propObj.GetString(TypeUserName, "")
 	userObj.gaeObject.Created = propObj.GetTime(TypeCreated, time.Now()) //srcCreated
-	userObj.gaeObject.Logined = propObj.GetTime(TypeLogined, time.Now()) //time.Unix(0, int64(v[TypeLogined].(float64))) //srcLogin
+	userObj.gaeObject.Updated = propObj.GetTime(TypeUpdated, time.Now()) //time.Unix(0, int64(v[TypeLogined].(float64))) //srcLogin
 	userObj.gaeObject.State = propObj.GetString(TypeState, "")
 	userObj.gaeObject.PublicInfo = propObj.GetString(TypePublicInfo, "")
 	userObj.gaeObject.PrivateInfo = propObj.GetString(TypePrivateInfo, "")
@@ -48,7 +48,7 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypeDisplayName: obj.gaeObject.DisplayName,        //
 		TypeUserName:    obj.gaeObject.UserName,           //
 		TypeCreated:     obj.gaeObject.Created.UnixNano(), //
-		TypeLogined:     obj.gaeObject.Logined.UnixNano(), //
+		TypeUpdated:     obj.gaeObject.Updated.UnixNano(), //
 		TypeState:       obj.gaeObject.State,              //
 		TypePoint:       obj.gaeObject.Point,              //
 		TypeIconUrl:     obj.gaeObject.IconUrl,            //

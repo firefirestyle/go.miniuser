@@ -84,9 +84,9 @@ func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	cursor := values.Get("cursor")
 	mode := values.Get("keyOnly")
-	keyOnly := false
+	keyOnly := true
 	if mode != "0" {
-		keyOnly = true
+		keyOnly = false
 	}
 
 	foundObj := obj.manager.FindUserWithNewOrder(ctx, cursor, keyOnly)

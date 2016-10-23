@@ -25,7 +25,7 @@ const (
 	TypeDisplayName = "DisplayName"
 	TypeUserName    = "UserName"
 	TypeCreated     = "Created"
-	TypeLogined     = "Logined"
+	TypeUpdated     = "Updated"
 	TypeState       = "State"
 	TypePublicInfo  = "PublicInfo"
 	TypePoint       = "Point"
@@ -36,9 +36,9 @@ const (
 type GaeUserItem struct {
 	ProjectId   string
 	DisplayName string
-	UserName    string    `datastore:",noindex"`
-	Created     time.Time `datastore:",noindex"`
-	Logined     time.Time
+	UserName    string
+	Created     time.Time
+	Updated     time.Time
 	State       string
 	PublicInfo  string `datastore:",noindex"`
 	PrivateInfo string `datastore:",noindex"`
@@ -58,7 +58,6 @@ type User struct {
 // ----
 
 func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string, sign string) *datastore.Key {
-	Debug(ctx, "=================== make sign :"+userName+":"+sign+"=======================")
 	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
 }
 
@@ -139,15 +138,23 @@ func (obj *User) GetCreated() time.Time {
 }
 
 func (obj *User) GetLogined() time.Time {
-	return obj.gaeObject.Logined
+	return obj.gaeObject.Updated
 }
 
-func (obj *User) GetInfo() string {
+func (obj *User) GetPublicInfo() string {
 	return obj.gaeObject.PublicInfo
 }
 
-func (obj *User) SetInfo(v string) {
+func (obj *User) SetPublicInfo(v string) {
 	obj.gaeObject.PublicInfo = v
+}
+
+func (obj *User) GetPrivateInfo() string {
+	return obj.gaeObject.PrivateInfo
+}
+
+func (obj *User) SetPrivateInfo(v string) {
+	obj.gaeObject.PrivateInfo = v
 }
 
 func (obj *User) GetPoint() int {
