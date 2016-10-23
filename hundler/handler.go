@@ -3,11 +3,15 @@ package hundler
 import (
 	"net/http"
 
+	"strings"
+
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
 	"github.com/firefirestyle/go.miniuser/relayid"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
+	"golang.org/x/net/context"
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 )
 
 type UserHandler struct {
@@ -56,16 +60,17 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
+	userName = strings.Split(userName, "::sign::")[0]
 	usrObj, userErr := obj.GetUserFromUserNameAndRelayId(ctx, userName)
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Not found User"))
+		w.Write([]byte("Not found User 1"))
 		return
 	} else {
 		cont, contErr := usrObj.ToJsonPublic()
 		if contErr != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Not found User"))
+			w.Write([]byte("Not found User 2"))
 			return
 		} else {
 			w.Write(cont)
@@ -93,4 +98,7 @@ func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
 		// todo
 	}
 	w.Write(propObj.ToJson())
+}
+func Debug(ctx context.Context, message string) {
+	log.Infof(ctx, message)
 }

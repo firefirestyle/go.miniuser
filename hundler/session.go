@@ -18,27 +18,35 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	userName := strings.Split(userObj.GetUserName(), "::sign::")[0]
 	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName+"::sign::"+strconv.Itoa(time.Now().Nanosecond()))
 
-	//	Debug(ctx, "SaveUserFromSession :"+userName)
+	Debug(ctx, "SaveUserFromSession :"+userName+":"+nextUserObj.GetUserName()+":"+userObj.GetUserName())
 	replayObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 
 	// copy
 	userObj.CopyWithoutuserName(ctx, nextUserObj)
+	if nil != obj.manager.SaveUser(ctx, nextUserObj) {
+		Debug(ctx, "SaveUserFromSession Delete failed 1: "+userObj.GetUserName())
+		return nil
+	}
 	replayObj.SetUserName(nextUserObj.GetUserName())
 	replayObj.Save(ctx)
 
 	//
 	obj.manager.SaveUser(ctx, nextUserObj)
-	obj.manager.DeleteUser(ctx, userObj.GetUserName())
+	if nil != obj.manager.DeleteUser(ctx, userObj.GetUserName()) {
+		Debug(ctx, "SaveUserFromSession Delete failed 2: "+userObj.GetUserName())
+	}
 	return nil
 }
 
 func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
-	//	Debug(ctx, "SaveUserFromNamePointer :"+userName)
+	Debug(ctx, "SaveUserFromNamePointer :"+userName)
+
 	pointerObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
 	if pointerObj.GetUserName() == "" {
+		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
 		return nil, errors.New("not found")
 	}
-	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetId())
+	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName())
 }
 
 func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *miniuser.User, error) {

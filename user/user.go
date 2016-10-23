@@ -58,9 +58,9 @@ type User struct {
 	prop         map[string]map[string]interface{}
 }
 
-//
-// -------------------------
-//
+// ----
+// new object
+// ----
 
 func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string) *datastore.Key {
 	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName), 0, nil)
@@ -105,18 +105,9 @@ func (obj *UserManager) newUserFromStringID(ctx context.Context, stringId string
 	return ret
 }
 
-//
-// -------------------------
-//
-func getStringFromProp(requestPropery map[string]interface{}, key string, defaultValue string) string {
-	v := requestPropery[key]
-	if v == nil {
-		return defaultValue
-	} else {
-		return v.(string)
-	}
-}
-
+// ----
+// json and copy
+// ----
 func (userObj *User) SetUserFromsJson(ctx context.Context, source string) error {
 	v := make(map[string]interface{})
 	e := json.Unmarshal([]byte(source), &v)
@@ -171,11 +162,15 @@ func (obj *User) ToJson() ([]byte, error) {
 	vv, e := json.Marshal(obj.ToMapAll())
 	return vv, e
 }
+
 func (obj *User) ToJsonPublic() ([]byte, error) {
 	vv, e := json.Marshal(obj.ToMapPublic())
 	return vv, e
 }
 
+//
+// save and delete
+//
 func (obj *User) updateMemcache(ctx context.Context) error {
 	userObjMemSource, err_toJson := obj.ToJson()
 	if err_toJson == nil {
@@ -194,6 +189,40 @@ func (obj *User) deleteMemcache(ctx context.Context) error {
 
 //
 //
+//
+
+func (obj *User) loadFromDB(ctx context.Context) error {
+	item, err := memcache.Get(ctx, obj.gaeObjectKey.StringID())
+	if err == nil {
+		err1 := obj.SetUserFromsJson(ctx, string(item.Value))
+		if err1 == nil {
+			return nil
+		} else {
+			log.Infof(ctx, ">>> Failed Load UseObj Json On LoadFronDB :: %s", err1.Error())
+		}
+	}
+	//
+	//
+	err_loaded := datastore.Get(ctx, obj.gaeObjectKey, obj.gaeObject)
+	if err_loaded != nil {
+		return err_loaded
+	}
+
+	obj.updateMemcache(ctx)
+
+	return nil
+}
+
+func (obj *User) pushToDB(ctx context.Context) error {
+	_, e := datastore.Put(ctx, obj.gaeObjectKey, obj.gaeObject)
+	obj.updateMemcache(ctx)
+	return e
+}
+
+// ----
+// getter setter
+// ----
+
 func (obj *User) GetOriginalUserName() string {
 	return strings.Split(obj.gaeObject.UserName, "::sign::")[0]
 }
@@ -256,36 +285,4 @@ func (obj *User) SetStatus(v string) {
 
 func (obj *User) GetStatus() string {
 	return obj.gaeObject.State
-}
-
-//
-//
-//
-
-func (obj *User) loadFromDB(ctx context.Context) error {
-	item, err := memcache.Get(ctx, obj.gaeObjectKey.StringID())
-	if err == nil {
-		err1 := obj.SetUserFromsJson(ctx, string(item.Value))
-		if err1 == nil {
-			return nil
-		} else {
-			log.Infof(ctx, ">>> Failed Load UseObj Json On LoadFronDB :: %s", err1.Error())
-		}
-	}
-	//
-	//
-	err_loaded := datastore.Get(ctx, obj.gaeObjectKey, obj.gaeObject)
-	if err_loaded != nil {
-		return err_loaded
-	}
-
-	obj.updateMemcache(ctx)
-
-	return nil
-}
-
-func (obj *User) pushToDB(ctx context.Context) error {
-	_, e := datastore.Put(ctx, obj.gaeObjectKey, obj.gaeObject)
-	obj.updateMemcache(ctx)
-	return e
 }
