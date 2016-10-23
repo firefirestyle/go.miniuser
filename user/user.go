@@ -59,6 +59,7 @@ type User struct {
 // ----
 
 func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string, sign string) *datastore.Key {
+	Debug(ctx, "=================== make sign :"+userName+":"+sign+"=======================")
 	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
 }
 
@@ -88,6 +89,7 @@ func (obj *UserManager) newUser(ctx context.Context, userName string, sign strin
 
 	ret.gaeObject.UserName = userName
 	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
+	Debug(ctx, "GetUserFromUserName B:"+ret.gaeObjectKey.StringID())
 	return ret
 }
 
