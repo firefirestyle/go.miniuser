@@ -23,7 +23,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	currentSign := replayObj.GetSign()
 
 	// copy
-	userObj.CopyWithoutuserName(ctx, nextUserObj)
+	userObj.CopyWithoutUserNameAndSign(ctx, nextUserObj)
 	if nil != obj.manager.SaveUser(ctx, nextUserObj) {
 		return nil
 	}

@@ -22,9 +22,10 @@ func (userObj *User) SetUserFromsJson(ctx context.Context, source string) error 
 	return nil
 }
 
-func (userObj *User) CopyWithoutuserName(ctx context.Context, copyObj *User) {
+func (userObj *User) CopyWithoutUserNameAndSign(ctx context.Context, copyObj *User) {
 	itemInfo := userObj.ToMapAll()
 	itemInfo[TypeUserName] = copyObj.GetUserName()
+	itemInfo[TypeSign] = copyObj.gaeObject.Sign
 	copyObj.SetUserFromsMap(ctx, itemInfo)
 }
 
@@ -40,9 +41,11 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.PrivateInfo = propObj.GetString(TypePrivateInfo, "")
 	userObj.gaeObject.Point = propObj.GetInt(TypePoint, 0)
 	userObj.gaeObject.IconUrl = propObj.GetString(TypeIconUrl, "")
+	userObj.gaeObject.Sign = propObj.GetString(TypeSign, "")
 }
 
 func (obj *User) ToMapPublic() map[string]interface{} {
+
 	return map[string]interface{}{
 		TypeProjectId:   obj.gaeObject.ProjectId,
 		TypeDisplayName: obj.gaeObject.DisplayName,        //
@@ -52,7 +55,9 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypeState:       obj.gaeObject.State,              //
 		TypePoint:       obj.gaeObject.Point,              //
 		TypeIconUrl:     obj.gaeObject.IconUrl,            //
-		TypePublicInfo:  obj.gaeObject.PublicInfo}
+		TypePublicInfo:  obj.gaeObject.PublicInfo,
+		TypeSign:        obj.gaeObject.Sign,
+	}
 }
 
 func (obj *User) ToMapAll() map[string]interface{} {

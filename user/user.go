@@ -31,6 +31,7 @@ const (
 	TypePoint       = "Point"
 	TypeIconUrl     = "IconUrl"
 	TypePrivateInfo = "PrivateInfo"
+	TypeSign        = "Sign"
 )
 
 type GaeUserItem struct {
@@ -44,6 +45,7 @@ type GaeUserItem struct {
 	PrivateInfo string `datastore:",noindex"`
 	Point       int
 	IconUrl     string `datastore:",noindex"`
+	Sign        string `datastore:",noindex"`
 }
 
 type User struct {
@@ -84,10 +86,10 @@ func (obj *UserManager) newUser(ctx context.Context, userName string, sign strin
 	ret.kind = obj.userKind
 	ret.gaeObject = new(GaeUserItem)
 	ret.gaeObject.ProjectId = obj.projectId
-
+	ret.gaeObject.Sign = sign
 	ret.gaeObject.UserName = userName
 	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
-	Debug(ctx, "GetUserFromUserName B:"+ret.gaeObjectKey.StringID())
+	Debug(ctx, "GetUserFromUserName B:"+sign+":==:"+ret.gaeObjectKey.StringID())
 	return ret
 }
 
