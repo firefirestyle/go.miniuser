@@ -60,12 +60,17 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
+	sign := values.Get("sign")
 	key := values.Get("key")
 	var usrObj *miniuser.User = nil
 	var userErr error = nil
 
 	if userName != "" {
-		usrObj, userErr = obj.GetUserFromUserNameAndRelayId(ctx, userName)
+		if sign == "" {
+			usrObj, userErr = obj.GetUserFromUserNameAndRelayId(ctx, userName)
+		} else {
+			usrObj, userErr = obj.GetUserFromUserNameAndSign(ctx, userName, sign)
+		}
 	} else if key != "" {
 		usrObj, userErr = obj.GetUserFromKey(ctx, key)
 	} else {
@@ -85,7 +90,7 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Not found User 2"))
 			return
 		} else {
-			if key != "" {
+			if key != "" || sign != "" {
 				w.Header().Set("Cache-Control", "public, max-age=2592000")
 			}
 			w.Write(cont)

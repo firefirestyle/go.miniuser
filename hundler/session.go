@@ -53,9 +53,14 @@ func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userN
 	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
 }
 
-func (obj *UserHandler) GetUserFromKey(ctx context.Context, key string) (*miniuser.User, error) {
-	Debug(ctx, "GetUserFromKey :"+key)
-	keyInfo, err := obj.GetManager().GetUserKeyInfo(key)
+func (obj *UserHandler) GetUserFromUserNameAndSign(ctx context.Context, userName string, sign string) (*miniuser.User, error) {
+	Debug(ctx, " GetUserFromUserNameAndSign :"+userName+" : "+sign)
+
+	return obj.GetManager().GetUserFromUserName(ctx, userName, sign)
+}
+func (obj *UserHandler) GetUserFromKey(ctx context.Context, stringId string) (*miniuser.User, error) {
+	Debug(ctx, "GetUserFromKey :"+stringId)
+	keyInfo, err := obj.GetManager().GetUserKeyInfo(stringId)
 	if err != nil {
 		Debug(ctx, "GetUserFromKey : err "+err.Error())
 		return nil, err
