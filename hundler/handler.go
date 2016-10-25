@@ -60,7 +60,20 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
-	usrObj, userErr := obj.GetUserFromUserNameAndRelayId(ctx, userName)
+	key := values.Get("key")
+	var usrObj *miniuser.User = nil
+	var userErr error = nil
+
+	if userName != "" {
+		usrObj, userErr = obj.GetUserFromUserNameAndRelayId(ctx, userName)
+	} else if key != "" {
+		usrObj, userErr = obj.GetUserFromKey(ctx, key)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Wrong Request"))
+		return
+	}
+
 	if userErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not found User 1"))

@@ -53,6 +53,15 @@ func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userN
 	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
 }
 
+func (obj *UserHandler) GetUserFromKey(ctx context.Context, key string) (*miniuser.User, error) {
+	Debug(ctx, "GetUserFromKey :"+key)
+	keyInfo, err := obj.GetManager().GetUserKeyInfo(key)
+	if err != nil {
+		return nil, err
+	}
+	return obj.GetManager().GetUserFromUserName(ctx, keyInfo.UserName, keyInfo.Sign)
+}
+
 func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *miniuser.User, error) {
 	relayIdObj := obj.relayIdMgr.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
