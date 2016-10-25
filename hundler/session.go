@@ -57,8 +57,10 @@ func (obj *UserHandler) GetUserFromKey(ctx context.Context, key string) (*minius
 	Debug(ctx, "GetUserFromKey :"+key)
 	keyInfo, err := obj.GetManager().GetUserKeyInfo(key)
 	if err != nil {
+		Debug(ctx, "GetUserFromKey : err "+err.Error())
 		return nil, err
 	}
+	Debug(ctx, "GetUserFromKey :"+keyInfo.UserName+" : "+keyInfo.Sign)
 	return obj.GetManager().GetUserFromUserName(ctx, keyInfo.UserName, keyInfo.Sign)
 }
 

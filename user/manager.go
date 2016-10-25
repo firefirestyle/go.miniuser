@@ -7,6 +7,8 @@ import (
 
 	"errors"
 
+	"strconv"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -45,23 +47,23 @@ func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign strin
 
 func (obj *UserManager) GetUserKeyInfo(stringId string) (*UserKeyInfo, error) {
 	items := strings.Split(stringId, ";")
-	if len(items) != 4 {
-		return nil, errors.New("wrong id")
+	if len(items) < 4 {
+		return nil, errors.New("wrong id 1 : " + strconv.Itoa(len(items)))
 	}
 	ks := strings.Split(items[0], ":")
-	if len(items) != 2 {
-		return nil, errors.New("wrong id")
+	if len(items) < 2 {
+		return nil, errors.New("wrong id 2")
 	}
 	ps := strings.Split(items[1], ":")
-	if len(items) != 2 {
-		return nil, errors.New("wrong id")
+	if len(items) < 2 {
+		return nil, errors.New("wrong id 3")
 	}
 	ns := strings.Split(items[2], ":")
-	if len(items) != 2 {
-		return nil, errors.New("wrong id")
+	if len(items) < 2 {
+		return nil, errors.New("wrong id 4")
 	}
 	ss := strings.Split(items[3], ":")
-	if len(items) != 2 {
+	if len(items) < 2 {
 		return nil, errors.New("wrong id")
 	}
 
