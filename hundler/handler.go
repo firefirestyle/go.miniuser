@@ -85,6 +85,9 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Not found User 2"))
 			return
 		} else {
+			if key != "" {
+				w.Header().Set("Cache-Control", "public, max-age=2592000")
+			}
 			w.Write(cont)
 			return
 		}
