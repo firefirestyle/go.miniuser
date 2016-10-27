@@ -29,7 +29,6 @@ func (obj *User) deleteMemcache(ctx context.Context) error {
 //
 //
 //
-
 func (obj *User) loadFromDB(ctx context.Context) error {
 	item, err := memcache.Get(ctx, obj.gaeObjectKey.StringID())
 	if err == nil {
