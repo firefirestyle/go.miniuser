@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/firefirestyle/go.miniuser/relayid"
+	"github.com/firefirestyle/go.minipointer"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
 )
@@ -19,7 +19,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	sign := strconv.Itoa(time.Now().Nanosecond())
 	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName, sign)
 
-	replayObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
+	replayObj := obj.relayIdMgr.GetPointerAsPointer(ctx, userName)
 	currentSign := replayObj.GetSign()
 
 	// copy
@@ -27,7 +27,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	if nil != obj.manager.SaveUser(ctx, nextUserObj) {
 		return nil
 	}
-	replayObj.SetUserName(nextUserObj.GetUserName())
+	replayObj.SetValue(nextUserObj.GetUserName())
 	replayObj.SetSign(sign)
 	replayObj.Save(ctx)
 	//
@@ -45,12 +45,12 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 
-	pointerObj := obj.relayIdMgr.GetRelayIdAsPointer(ctx, userName)
-	if pointerObj.GetUserName() == "" {
+	pointerObj := obj.relayIdMgr.GetPointerAsPointer(ctx, userName)
+	if pointerObj.GetValue() == "" {
 		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
 		return nil, errors.New("not found")
 	}
-	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
+	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 }
 
 func (obj *UserHandler) GetUserFromUserNameAndSign(ctx context.Context, userName string, sign string) (*miniuser.User, error) {
@@ -69,21 +69,21 @@ func (obj *UserHandler) GetUserFromKey(ctx context.Context, stringId string) (*m
 	return obj.GetManager().GetUserFromUserName(ctx, keyInfo.UserName, keyInfo.Sign)
 }
 
-func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *relayid.RelayId, *miniuser.User, error) {
-	relayIdObj := obj.relayIdMgr.GetRelayIdForTwitter(ctx, screenName, userId, oauthToken)
+func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *minipointer.Pointer, *miniuser.User, error) {
+	relayIdObj := obj.relayIdMgr.GetPointerForTwitter(ctx, screenName, userId, oauthToken)
 	needMake := false
 
 	//
 	// new userObj
 	var err error = nil
 	var userObj *miniuser.User = nil
-	var pointerObj *relayid.RelayId = nil
-	if relayIdObj.GetUserName() != "" {
+	var pointerObj *minipointer.Pointer = nil
+	if relayIdObj.GetValue() != "" {
 		needMake = true
 		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, relayIdObj.GetUserName())
-		if pointerObj.GetUserName() != "" {
-			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetUserName(), pointerObj.GetSign())
+		pointerObj = obj.relayIdMgr.GetPointerAsPointer(ctx, relayIdObj.GetValue())
+		if pointerObj.GetValue() != "" {
+			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 			if err != nil {
 				userObj = nil
 			}
@@ -93,8 +93,8 @@ func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName s
 		userObj = obj.GetManager().NewNewUser(ctx, "")
 		userObj.SetDisplayName(screenName)
 		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetRelayIdAsPointer(ctx, userObj.GetUserName())
-		pointerObj.SetUserName(userObj.GetUserName())
+		pointerObj = obj.relayIdMgr.GetPointerAsPointer(ctx, userObj.GetUserName())
+		pointerObj.SetValue(userObj.GetUserName())
 		pointerObj.SetSign("")
 		Debug(ctx, "LoginRegistFromTwitter :")
 		err := pointerObj.Save(ctx)
@@ -103,7 +103,7 @@ func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName s
 		}
 		//
 		// set username
-		relayIdObj.SetUserName(pointerObj.GetUserName())
+		relayIdObj.SetValue(pointerObj.GetValue())
 	}
 
 	//
