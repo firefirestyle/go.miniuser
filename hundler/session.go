@@ -19,7 +19,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	sign := strconv.Itoa(time.Now().Nanosecond())
 	nextUserObj, _ := obj.manager.GetUserFromUserName(ctx, userName, sign)
 
-	replayObj := obj.relayIdMgr.GetPointerAsPointer(ctx, userName)
+	replayObj := obj.relayIdMgr.GetPointerForRelayId(ctx, userName)
 	currentSign := replayObj.GetSign()
 
 	// copy
@@ -45,7 +45,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 
-	pointerObj := obj.relayIdMgr.GetPointerAsPointer(ctx, userName)
+	pointerObj := obj.relayIdMgr.GetPointerForRelayId(ctx, userName)
 	if pointerObj.GetValue() == "" {
 		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
 		return nil, errors.New("not found")
@@ -81,7 +81,7 @@ func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName s
 	if relayIdObj.GetValue() != "" {
 		needMake = true
 		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerAsPointer(ctx, relayIdObj.GetValue())
+		pointerObj = obj.relayIdMgr.GetPointerForRelayId(ctx, relayIdObj.GetValue())
 		if pointerObj.GetValue() != "" {
 			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 			if err != nil {
@@ -93,7 +93,7 @@ func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName s
 		userObj = obj.GetManager().NewNewUser(ctx, "")
 		userObj.SetDisplayName(screenName)
 		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerAsPointer(ctx, userObj.GetUserName())
+		pointerObj = obj.relayIdMgr.GetPointerForRelayId(ctx, userObj.GetUserName())
 		pointerObj.SetValue(userObj.GetUserName())
 		pointerObj.SetSign("")
 		Debug(ctx, "LoginRegistFromTwitter :")
