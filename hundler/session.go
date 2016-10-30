@@ -42,7 +42,7 @@ func (obj *UserHandler) SaveUserWithImmutable(ctx context.Context, userObj *mini
 	return nil
 }
 
-func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
+func (obj *UserHandler) GetUserFromRelayId(ctx context.Context, userName string) (*miniuser.User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 
 	pointerObj := obj.relayIdMgr.GetPointerForRelayId(ctx, userName)
@@ -53,7 +53,7 @@ func (obj *UserHandler) GetUserFromUserNameAndRelayId(ctx context.Context, userN
 	return obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 }
 
-func (obj *UserHandler) GetUserFromUserNameAndSign(ctx context.Context, userName string, sign string) (*miniuser.User, error) {
+func (obj *UserHandler) GetUserFromSign(ctx context.Context, userName string, sign string) (*miniuser.User, error) {
 	Debug(ctx, " GetUserFromUserNameAndSign :"+userName+" : "+sign)
 
 	return obj.GetManager().GetUserFromUserName(ctx, userName, sign)

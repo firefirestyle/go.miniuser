@@ -67,9 +67,9 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	if userName != "" {
 		if sign == "" {
-			usrObj, userErr = obj.GetUserFromUserNameAndRelayId(ctx, userName)
+			usrObj, userErr = obj.GetUserFromRelayId(ctx, userName)
 		} else {
-			usrObj, userErr = obj.GetUserFromUserNameAndSign(ctx, userName, sign)
+			usrObj, userErr = obj.GetUserFromSign(ctx, userName, sign)
 		}
 	} else if key != "" {
 		usrObj, userErr = obj.GetUserFromKey(ctx, key)
