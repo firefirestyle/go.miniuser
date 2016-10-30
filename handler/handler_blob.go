@@ -7,6 +7,8 @@ import (
 
 	"errors"
 
+	"io/ioutil"
+
 	miniblob "github.com/firefirestyle/go.miniblob/blob"
 	blobhandler "github.com/firefirestyle/go.miniblob/handler"
 	"github.com/firefirestyle/go.miniprop"
@@ -42,15 +44,16 @@ func (obj *UserHandler) GetDirFromDir(dir string) string {
 func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Request) {
 	//
 	// load param from json
-	articleId := r.URL.Query().Get("userName")
-	dir := r.URL.Query().Get("dir")
-	name := r.URL.Query().Get("file")
-	//
-	// todo check articleId
+	params, _ := ioutil.ReadAll(r.Body)
+	inputPropObj := miniprop.NewMiniPropFromJson(params)
+	dir := inputPropObj.GetString("dir", "")
+	name := inputPropObj.GetString("file", "")
+	userName := inputPropObj.GetString("userName", "")
 
 	//
 	//
-	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, "/user/"+articleId+"/"+dir, name)
+	Debug(appengine.NewContext(r), ">>"+dir+">>"+name+">>"+userName)
+	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, "/user/"+userName+"/"+dir, name, inputPropObj)
 }
 
 func (obj *UserHandler) HandleBlobUpdated(w http.ResponseWriter, r *http.Request) {

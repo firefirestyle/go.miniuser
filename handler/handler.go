@@ -38,7 +38,7 @@ type UserHandlerManagerConfig struct {
 }
 
 type UserHandlerOnEvent struct {
-	blobOnEvent blobhandler.BlobHandlerOnEvent
+	BlobOnEvent blobhandler.BlobHandlerOnEvent
 }
 
 func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
@@ -84,15 +84,15 @@ func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvent
 	}
 	//
 	//
-	ret.completeFunc = onEvents.blobOnEvent.OnBlobComplete
-	onEvents.blobOnEvent.OnBlobComplete = ret.OnBlobComplete
+	ret.completeFunc = onEvents.BlobOnEvent.OnBlobComplete
+	onEvents.BlobOnEvent.OnBlobComplete = ret.OnBlobComplete
 
 	ret.blobHandler = blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
 		ProjectId:   config.ProjectId,
 		Kind:        config.BlobKind,
 		PointerKind: config.BlobPointerKind,
 		CallbackUrl: callbackUrl,
-	}, onEvents.blobOnEvent)
+	}, onEvents.BlobOnEvent)
 	return ret
 }
 
