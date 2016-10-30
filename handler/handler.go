@@ -86,7 +86,8 @@ func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvent
 		dir := r.URL.Query().Get("dir")
 		if true == strings.HasPrefix(dir, "/user") {
 			ctx := appengine.NewContext(r)
-			userName := strings.Replace(dir, "/user/", "", -1)
+			userName := ret.GetUserNameFromDir(dir)
+			Debug(ctx, "dir::"+dir+";;username::"+userName)
 			userMgrObj := ret
 			userObj, userErr := userMgrObj.GetManager().GetUserFromRelayId(ctx, userName)
 			if userErr != nil {
@@ -95,7 +96,11 @@ func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvent
 			}
 			userObj.SetIconUrl("key://" + blobObj.GetBlobKey())
 			userMgrObj.GetManager().SaveUserWithImmutable(ctx, userObj)
-			return completeFunc(w, r, outputProp, hh, blobObj)
+			if completeFunc != nil {
+				return completeFunc(w, r, outputProp, hh, blobObj)
+			} else {
+				return nil
+			}
 		} else {
 			return errors.New("unsupport")
 		}
@@ -106,7 +111,7 @@ func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvent
 		Kind:        config.BlobKind,
 		PointerKind: config.BlobPointerKind,
 		CallbackUrl: callbackUrl,
-	}, blobhandler.BlobHandlerOnEvent{})
+	}, onEvents.blobOnEvent)
 	return ret
 }
 

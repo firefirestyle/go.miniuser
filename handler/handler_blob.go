@@ -8,7 +8,7 @@ import (
 	"google.golang.org/appengine"
 )
 
-func (obj *UserHandler) GetArticleIdFromDir(dir string) string {
+func (obj *UserHandler) GetUserNameFromDir(dir string) string {
 	if false == strings.HasPrefix(dir, "/user/") {
 		return ""
 	}
