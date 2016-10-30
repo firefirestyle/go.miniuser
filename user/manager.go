@@ -1,14 +1,6 @@
 package user
 
 import (
-	//	"github.com/firefirestyle/go.miniuser/relayid"
-	//	"github.com/firefirestyle/go.miniprop"
-	"strings"
-
-	"errors"
-
-	"strconv"
-
 	"github.com/firefirestyle/go.minipointer"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -39,47 +31,6 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 	})
 
 	return obj
-}
-
-type UserKeyInfo struct {
-	Kind      string
-	ProjectId string
-	UserName  string
-	Sign      string
-}
-
-func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign string) string {
-	return "k:" + obj.userKind + ";p:" + obj.projectId + ";n:" + userName + ";s:" + sign + ";"
-}
-
-func (obj *UserManager) GetUserKeyInfo(stringId string) (*UserKeyInfo, error) {
-	items := strings.Split(stringId, ";")
-	if len(items) < 4 {
-		return nil, errors.New("wrong id 1 : " + strconv.Itoa(len(items)))
-	}
-	ks := strings.Split(items[0], ":")
-	if len(items) < 2 {
-		return nil, errors.New("wrong id 2")
-	}
-	ps := strings.Split(items[1], ":")
-	if len(items) < 2 {
-		return nil, errors.New("wrong id 3")
-	}
-	ns := strings.Split(items[2], ":")
-	if len(items) < 2 {
-		return nil, errors.New("wrong id 4")
-	}
-	ss := strings.Split(items[3], ":")
-	if len(items) < 2 {
-		return nil, errors.New("wrong id")
-	}
-
-	return &UserKeyInfo{
-		Kind:      ks[1],
-		ProjectId: ps[1],
-		UserName:  ns[1],
-		Sign:      ss[1],
-	}, nil
 }
 
 func (obj *UserManager) GetUserKind() string {

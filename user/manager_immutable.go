@@ -60,11 +60,7 @@ func (obj *UserManager) GetUserFromSign(ctx context.Context, userName string, si
 
 func (obj *UserManager) GetUserFromKey(ctx context.Context, stringId string) (*User, error) {
 	Debug(ctx, "GetUserFromKey :"+stringId)
-	keyInfo, err := obj.GetUserKeyInfo(stringId)
-	if err != nil {
-		Debug(ctx, "GetUserFromKey : err "+err.Error())
-		return nil, err
-	}
+	keyInfo := obj.GetUserKeyInfo(stringId)
 	Debug(ctx, "GetUserFromKey :"+keyInfo.UserName+" : "+keyInfo.Sign)
 	return obj.GetUserFromUserName(ctx, keyInfo.UserName, keyInfo.Sign)
 }
