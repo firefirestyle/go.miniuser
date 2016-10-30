@@ -9,20 +9,23 @@ import (
 
 	"strconv"
 
+	"github.com/firefirestyle/go.minipointer"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
 type UserManagerConfig struct {
-	ProjectId string
-	UserKind  string
+	ProjectId       string
+	UserKind        string
+	UserPointerKind string
 }
 
 type UserManager struct {
 	projectId      string
 	userKind       string
 	limitOfFinding int
+	pointerManager *minipointer.PointerManager
 }
 
 func NewUserManager(config UserManagerConfig) *UserManager {
@@ -30,6 +33,10 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 	obj.projectId = config.ProjectId
 	obj.userKind = config.UserKind
 	obj.limitOfFinding = 10
+	obj.pointerManager = minipointer.NewPointerManager(minipointer.PointerManagerConfig{
+		ProjectId: config.ProjectId,
+		Kind:      config.UserPointerKind,
+	})
 
 	return obj
 }

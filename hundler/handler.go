@@ -33,8 +33,9 @@ type UserHandlerOnEvent struct {
 func NewUserHandler(config UserHandlerManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
 	return &UserHandler{
 		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
-			ProjectId: config.ProjectId,
-			UserKind:  config.UserKind,
+			ProjectId:       config.ProjectId,
+			UserKind:        config.UserKind,
+			UserPointerKind: config.RelayIdKind,
 		}),
 		relayIdMgr: minipointer.NewPointerManager( //
 			minipointer.PointerManagerConfig{
@@ -67,12 +68,12 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	if userName != "" {
 		if sign == "" {
-			usrObj, userErr = obj.GetUserFromRelayId(ctx, userName)
+			usrObj, userErr = obj.GetManager().GetUserFromRelayId(ctx, userName)
 		} else {
-			usrObj, userErr = obj.GetUserFromSign(ctx, userName, sign)
+			usrObj, userErr = obj.GetManager().GetUserFromSign(ctx, userName, sign)
 		}
 	} else if key != "" {
-		usrObj, userErr = obj.GetUserFromKey(ctx, key)
+		usrObj, userErr = obj.GetManager().GetUserFromKey(ctx, key)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Wrong Request"))
