@@ -22,7 +22,7 @@ func (obj *UserHandler) GetFacebookHandlerObj(config facebook.FacebookOAuthConfi
 
 				//
 				//
-				_, _, userObj, err1 := obj.LoginRegistFromTwitter(ctx, //
+				_, _, userObj, err1 := obj.LoginRegistFromFacebook(ctx, //
 					meObj.Name,        //
 					meObj.Id,          //
 					token.AccessToken) //

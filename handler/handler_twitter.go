@@ -16,3 +16,11 @@ func (obj *UserHandler) HandleTwitterRequestToken(w http.ResponseWriter, r *http
 func (obj *UserHandler) HandleTwitterCallbackToken(w http.ResponseWriter, r *http.Request) {
 	obj.twitterHandler.HandleLoginExit(w, r)
 }
+
+func (obj *UserHandler) HandleFacebookRequestToken(w http.ResponseWriter, r *http.Request) {
+	obj.facebookHandler.HandleLoginEntry(w, r)
+}
+
+func (obj *UserHandler) HandleFacebookCallbackToken(w http.ResponseWriter, r *http.Request) {
+	obj.facebookHandler.HandleLoginExit(w, r)
+}

@@ -1,32 +1,28 @@
 package handler
 
 import (
-
-	//	"strings"
-
-	//	"errors"
 	"net/http"
-	//"strings"
 
 	miniblob "github.com/firefirestyle/go.miniblob/blob"
 	blobhandler "github.com/firefirestyle/go.miniblob/handler"
+	"github.com/firefirestyle/go.minioauth/facebook"
 	"github.com/firefirestyle/go.minioauth/twitter"
 	"github.com/firefirestyle/go.minipointer"
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
-	//	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 )
 
 type UserHandler struct {
-	manager        *miniuser.UserManager
-	relayIdMgr     *minipointer.PointerManager
-	sessionMgr     *minisession.SessionManager
-	blobHandler    *blobhandler.BlobHandler
-	twitterHandler *twitter.TwitterHandler
-	completeFunc   func(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error
+	manager         *miniuser.UserManager
+	relayIdMgr      *minipointer.PointerManager
+	sessionMgr      *minisession.SessionManager
+	blobHandler     *blobhandler.BlobHandler
+	twitterHandler  *twitter.TwitterHandler
+	facebookHandler *facebook.FacebookHandler
+	completeFunc    func(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error
 }
 
 type UserHandlerManagerConfig struct {
@@ -45,6 +41,7 @@ type UserHandlerOnEvent struct {
 func NewUserHandler(callbackUrl string, //
 	config UserHandlerManagerConfig, //
 	twitterConfig twitter.TwitterOAuthConfig,
+	facebookConfig facebook.FacebookOAuthConfig,
 	onEvents UserHandlerOnEvent, //
 	onBlobEvent blobhandler.BlobHandlerOnEvent) *UserHandler {
 	if config.ProjectId == "" {
@@ -88,6 +85,7 @@ func NewUserHandler(callbackUrl string, //
 		//		blobHandler: blobHandlerObj,
 	}
 	ret.twitterHandler = ret.GetTwitterHandlerObj(twitterConfig)
+	ret.facebookHandler = ret.GetFacebookHandlerObj(facebookConfig)
 	//
 	//
 	ret.completeFunc = onBlobEvent.OnBlobComplete
