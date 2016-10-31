@@ -10,6 +10,7 @@ import (
 
 	miniblob "github.com/firefirestyle/go.miniblob/blob"
 	blobhandler "github.com/firefirestyle/go.miniblob/handler"
+	"github.com/firefirestyle/go.minioauth/twitter"
 	"github.com/firefirestyle/go.minipointer"
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
@@ -20,11 +21,12 @@ import (
 )
 
 type UserHandler struct {
-	manager      *miniuser.UserManager
-	relayIdMgr   *minipointer.PointerManager
-	sessionMgr   *minisession.SessionManager
-	blobHandler  *blobhandler.BlobHandler
-	completeFunc func(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error
+	manager        *miniuser.UserManager
+	relayIdMgr     *minipointer.PointerManager
+	sessionMgr     *minisession.SessionManager
+	blobHandler    *blobhandler.BlobHandler
+	twitterHandler *twitter.TwitterHandler
+	completeFunc   func(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error
 }
 
 type UserHandlerManagerConfig struct {
@@ -38,10 +40,13 @@ type UserHandlerManagerConfig struct {
 }
 
 type UserHandlerOnEvent struct {
-	BlobOnEvent blobhandler.BlobHandlerOnEvent
 }
 
-func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvents UserHandlerOnEvent) *UserHandler {
+func NewUserHandler(callbackUrl string, //
+	config UserHandlerManagerConfig, //
+	twitterConfig twitter.TwitterOAuthConfig,
+	onEvents UserHandlerOnEvent, //
+	onBlobEvent blobhandler.BlobHandlerOnEvent) *UserHandler {
 	if config.ProjectId == "" {
 		config.ProjectId = "ffstyle"
 	}
@@ -82,17 +87,18 @@ func NewUserHandler(callbackUrl string, config UserHandlerManagerConfig, onEvent
 		}),
 		//		blobHandler: blobHandlerObj,
 	}
+	ret.twitterHandler = ret.GetTwitterHandlerObj(twitterConfig)
 	//
 	//
-	ret.completeFunc = onEvents.BlobOnEvent.OnBlobComplete
-	onEvents.BlobOnEvent.OnBlobComplete = ret.OnBlobComplete
+	ret.completeFunc = onBlobEvent.OnBlobComplete
+	onBlobEvent.OnBlobComplete = ret.OnBlobComplete
 
 	ret.blobHandler = blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
 		ProjectId:   config.ProjectId,
 		Kind:        config.BlobKind,
 		PointerKind: config.BlobPointerKind,
 		CallbackUrl: callbackUrl,
-	}, onEvents.BlobOnEvent)
+	}, onBlobEvent)
 	return ret
 }
 

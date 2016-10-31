@@ -16,9 +16,9 @@ import (
 //
 //
 //
-func (obj *UserHandler) GetTwitterHandlerObj(ctx context.Context, callbackAddr string, config twitter.TwitterOAuthConfig) *twitter.TwitterHandler {
+func (obj *UserHandler) GetTwitterHandlerObj(config twitter.TwitterOAuthConfig) *twitter.TwitterHandler {
 	twitterHandlerObj := twitter.NewTwitterHandler( //
-		callbackAddr, config, twitter.TwitterHundlerOnEvent{
+		config, twitter.TwitterHundlerOnEvent{
 			OnFoundUser: func(w http.ResponseWriter, r *http.Request, handler *twitter.TwitterHandler, accesssToken *twitter.SendAccessTokenResult) map[string]string {
 				ctx := appengine.NewContext(r)
 
