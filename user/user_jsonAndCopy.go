@@ -42,6 +42,8 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.Point = propObj.GetInt(TypePoint, 0)
 	userObj.gaeObject.IconUrl = propObj.GetString(TypeIconUrl, "")
 	userObj.gaeObject.Sign = propObj.GetString(TypeSign, "")
+	userObj.gaeObject.Tags = propObj.GetString(TypeTags, "")
+	userObj.gaeObject.Cont = propObj.GetString(TypeCont, "")
 }
 
 func (obj *User) ToMapPublic() map[string]interface{} {
@@ -57,6 +59,8 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypeIconUrl:     obj.gaeObject.IconUrl,            //
 		TypePublicInfo:  obj.gaeObject.PublicInfo,
 		TypeSign:        obj.gaeObject.Sign,
+		TypeTags:        obj.gaeObject.Tags,
+		TypeCont:        obj.gaeObject.Cont,
 	}
 }
 
@@ -66,12 +70,10 @@ func (obj *User) ToMapAll() map[string]interface{} {
 	return v
 }
 
-func (obj *User) ToJson() ([]byte, error) {
-	vv, e := json.Marshal(obj.ToMapAll())
-	return vv, e
+func (obj *User) ToJson() []byte {
+	return miniprop.NewMiniPropFromMap(obj.ToMapAll()).ToJson()
 }
 
-func (obj *User) ToJsonPublic() ([]byte, error) {
-	vv, e := json.Marshal(obj.ToMapPublic())
-	return vv, e
+func (obj *User) ToJsonPublic() []byte {
+	return miniprop.NewMiniPropFromMap(obj.ToMapPublic()).ToJson()
 }

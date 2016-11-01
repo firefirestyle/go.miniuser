@@ -11,15 +11,12 @@ import (
 // save and delete
 //
 func (obj *User) updateMemcache(ctx context.Context) error {
-	userObjMemSource, err_toJson := obj.ToJson()
-	if err_toJson == nil {
-		userObjMem := &memcache.Item{
-			Key:   obj.gaeObjectKey.StringID(),
-			Value: []byte(userObjMemSource), //
-		}
-		memcache.Set(ctx, userObjMem)
+	userObjMemSource := obj.ToJson()
+	userObjMem := &memcache.Item{
+		Key:   obj.gaeObjectKey.StringID(),
+		Value: []byte(userObjMemSource), //
 	}
-	return err_toJson
+	return memcache.Set(ctx, userObjMem)
 }
 
 func (obj *User) deleteMemcache(ctx context.Context) error {

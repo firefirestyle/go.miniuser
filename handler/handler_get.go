@@ -37,17 +37,11 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Not found User 1"))
 		return
 	} else {
-		cont, contErr := usrObj.ToJsonPublic()
-		if contErr != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Not found User 2"))
-			return
-		} else {
-			if key != "" || sign != "" {
-				w.Header().Set("Cache-Control", "public, max-age=2592000")
-			}
-			w.Write(cont)
-			return
+		cont := usrObj.ToJsonPublic()
+		if key != "" || sign != "" {
+			w.Header().Set("Cache-Control", "public, max-age=2592000")
 		}
+		w.Write(cont)
+		return
 	}
 }

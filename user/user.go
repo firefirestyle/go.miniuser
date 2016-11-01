@@ -32,6 +32,8 @@ const (
 	TypeIconUrl     = "IconUrl"
 	TypePrivateInfo = "PrivateInfo"
 	TypeSign        = "Sign"
+	TypeCont        = "Cont"
+	TypeTags        = "Tags"
 )
 
 type GaeUserItem struct {
@@ -46,6 +48,8 @@ type GaeUserItem struct {
 	Point       int
 	IconUrl     string `datastore:",noindex"`
 	Sign        string `datastore:",noindex"`
+	Cont        string `datastore:",noindex"`
+	Tags        string `datastore:",noindex"`
 }
 
 type User struct {
@@ -173,4 +177,20 @@ func (obj *User) SetStatus(v string) {
 
 func (obj *User) GetStatus() string {
 	return obj.gaeObject.State
+}
+
+func (obj *User) SetCont(v string) {
+	obj.gaeObject.Cont = v
+}
+
+func (obj *User) GetCont() string {
+	return obj.gaeObject.Cont
+}
+
+func (obj *User) GetSign() string {
+	return obj.gaeObject.Sign
+}
+
+func (obj *User) GetStringId() string {
+	return obj.gaeObjectKey.StringID()
 }
