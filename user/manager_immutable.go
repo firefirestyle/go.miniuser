@@ -12,7 +12,7 @@ import (
 
 //
 //
-func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User) error {
+func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User) (*User, error) {
 	// init
 	userName := userObj.GetUserName()
 	sign := strconv.Itoa(time.Now().Nanosecond())
@@ -24,7 +24,7 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 	// copy
 	userObj.CopyWithoutUserNameAndSign(ctx, nextUserObj)
 	if nil != obj.SaveUser(ctx, nextUserObj) {
-		return nil
+		return nextUserObj, nil
 	}
 	replayObj.SetValue(nextUserObj.GetUserName())
 	replayObj.SetSign(sign)
@@ -32,13 +32,13 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 	//
 	err1 := obj.SaveUser(ctx, nextUserObj)
 	if nil != err1 {
-		return err1
+		return nil, err1
 	}
 	err2 := obj.DeleteUser(ctx, userObj.GetUserName(), currentSign)
 	if nil != err2 {
-		return err2
+		return nil, err2
 	}
-	return nil
+	return nextUserObj, nil
 }
 
 func (obj *UserManager) GetUserFromRelayId(ctx context.Context, userName string) (*User, error) {
