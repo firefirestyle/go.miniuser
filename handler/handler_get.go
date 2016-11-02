@@ -5,16 +5,38 @@ import (
 
 	//	"strings"
 
+	"github.com/firefirestyle/go.miniprop"
+	"github.com/firefirestyle/go.minisession"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"google.golang.org/appengine"
 )
 
 func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
 	values := r.URL.Query()
 	userName := values.Get("userName")
 	sign := values.Get("sign")
 	key := values.Get("key")
+	obj.HandleGetBase(w, r, userName, sign, key)
+}
+
+func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	inputProp := miniprop.NewMiniPropFromJsonReader(r.Body)
+	values := r.URL.Query()
+	token := values.Get(inputProp.GetString("token", ""))
+	loginResult := obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
+	userName := loginResult.AccessTokenObj.GetUserName()
+	if loginResult.IsLogin == false {
+		userName = ""
+	}
+	obj.HandleGetBase(w, r, userName, "", "")
+}
+
+/*
+
+ */
+func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, userName string, sign string, key string) {
+	ctx := appengine.NewContext(r)
 	var usrObj *miniuser.User = nil
 	var userErr error = nil
 
