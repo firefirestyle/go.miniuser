@@ -16,7 +16,7 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	userName := values.Get("userName")
 	sign := values.Get("sign")
 	key := values.Get("key")
-	obj.HandleGetBase(w, r, userName, sign, key)
+	obj.HandleGetBase(w, r, userName, sign, key, false)
 }
 
 func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
@@ -29,13 +29,13 @@ func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
 	if loginResult.IsLogin == false {
 		userName = ""
 	}
-	obj.HandleGetBase(w, r, userName, "", "")
+	obj.HandleGetBase(w, r, userName, "", "", false)
 }
 
 /*
 
  */
-func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, userName string, sign string, key string) {
+func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, userName string, sign string, key string, includePrivate bool) {
 	ctx := appengine.NewContext(r)
 	var usrObj *miniuser.User = nil
 	var userErr error = nil
@@ -59,11 +59,14 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 		w.Write([]byte("Not found User 1"))
 		return
 	} else {
-		cont := usrObj.ToJsonPublic()
 		if key != "" || sign != "" {
 			w.Header().Set("Cache-Control", "public, max-age=2592000")
 		}
-		w.Write(cont)
+		if includePrivate == true {
+			w.Write(usrObj.ToJson())
+		} else {
+			w.Write(usrObj.ToJsonPublic())
+		}
 		return
 	}
 }
