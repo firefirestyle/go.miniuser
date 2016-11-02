@@ -31,7 +31,7 @@ func (userObj *User) CopyWithoutUserNameAndSign(ctx context.Context, copyObj *Us
 
 func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface{}) {
 	propObj := miniprop.NewMiniPropFromMap(v)
-	userObj.gaeObject.ProjectId = propObj.GetString(TypeProjectId, "")
+	userObj.gaeObject.RootGroup = propObj.GetString(TypeRootGroup, "")
 	userObj.gaeObject.DisplayName = propObj.GetString(TypeDisplayName, "")
 	userObj.gaeObject.UserName = propObj.GetString(TypeUserName, "")
 	userObj.gaeObject.Created = propObj.GetTime(TypeCreated, time.Now()) //srcCreated
@@ -49,7 +49,7 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 func (obj *User) ToMapPublic() map[string]interface{} {
 
 	return map[string]interface{}{
-		TypeProjectId:   obj.gaeObject.ProjectId,
+		TypeRootGroup:       obj.gaeObject.RootGroup,
 		TypeDisplayName: obj.gaeObject.DisplayName,        //
 		TypeUserName:    obj.gaeObject.UserName,           //
 		TypeCreated:     obj.gaeObject.Created.UnixNano(), //

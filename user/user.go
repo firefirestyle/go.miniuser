@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	TypeProjectId   = "ProjectId"
+	TypeRootGroup   = "RootGroup"
 	TypeDisplayName = "DisplayName"
 	TypeUserName    = "UserName"
 	TypeCreated     = "Created"
@@ -37,7 +37,7 @@ const (
 )
 
 type GaeUserItem struct {
-	ProjectId   string
+	RootGroup   string
 	DisplayName string
 	UserName    string
 	Created     time.Time
@@ -89,7 +89,7 @@ func (obj *UserManager) newUser(ctx context.Context, userName string, sign strin
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.userKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.ProjectId = obj.projectId
+	ret.gaeObject.RootGroup = obj.projectId
 	ret.gaeObject.Sign = sign
 	ret.gaeObject.UserName = userName
 	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
@@ -102,7 +102,7 @@ func (obj *UserManager) newUserFromStringID(ctx context.Context, stringId string
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.userKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.ProjectId = obj.projectId
+	ret.gaeObject.RootGroup = obj.projectId
 	ret.gaeObjectKey = datastore.NewKey(ctx, obj.userKind, stringId, 0, nil)
 	return ret
 }

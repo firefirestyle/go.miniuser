@@ -32,9 +32,6 @@ func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
 	obj.HandleGetBase(w, r, userName, "", "", false)
 }
 
-/*
-
- */
 func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, userName string, sign string, key string, includePrivate bool) {
 	ctx := appengine.NewContext(r)
 	var usrObj *miniuser.User = nil

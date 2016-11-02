@@ -41,6 +41,20 @@ func (obj *UserHandler) GetDirFromDir(dir string) string {
 	return t1[t2:len(t1)]
 }
 
+func (obj *UserHandler) MakeDir(userName string, dir string) string {
+	if dir == "" {
+		return "/user/" + userName + "/" + dir
+	}
+	if strings.HasPrefix(dir, "/") {
+		dir = dir[1:]
+	}
+	if strings.HasSuffix(dir, "/") {
+		dir = dir[0 : len(dir)-1]
+	}
+
+	return "/user/" + userName + "/" + dir
+}
+
 func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Request) {
 	//
 	// load param from json
@@ -53,7 +67,7 @@ func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Re
 	//
 	//
 	Debug(appengine.NewContext(r), ">>"+dir+">>"+name+">>"+userName)
-	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, "/user/"+userName+"/"+dir, name, inputPropObj)
+	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, obj.MakeDir(userName, dir), name, inputPropObj)
 }
 
 func (obj *UserHandler) HandleBlobUpdated(w http.ResponseWriter, r *http.Request) {
@@ -65,9 +79,13 @@ func (obj *UserHandler) HandleBlobUpdated(w http.ResponseWriter, r *http.Request
 
 func (obj *UserHandler) HandleBlobGet(w http.ResponseWriter, r *http.Request) {
 	//
-	ctx := appengine.NewContext(r)
-	Debug(ctx, "callbeck AAAA")
-	obj.blobHandler.HandleGet(w, r)
+	values := r.URL.Query()
+	key := values.Get("key")
+	dir := values.Get("dir")
+	file := values.Get("file")
+	userName := values.Get("userName")
+
+	obj.blobHandler.HandleGetBase(w, r, key, obj.MakeDir(userName, dir), file)
 }
 
 func (userMgrObj *UserHandler) OnBlobComplete(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error {
