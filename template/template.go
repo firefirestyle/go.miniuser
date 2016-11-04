@@ -57,6 +57,7 @@ func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
 func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp) minisession.CheckLoginIdResult {
 	ctx := appengine.NewContext(r)
 	token := input.GetString("token", "")
+	Debug(ctx, "CheckLogin ++>"+token)
 	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
 }
 
@@ -154,11 +155,12 @@ func (tmpObj *UserTemplate) InitUserApi() {
 	})
 
 	http.HandleFunc(UrlMeGet, func(w http.ResponseWriter, r *http.Request) {
+		Debug(appengine.NewContext(r), "UrlMeGet called -->")
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleGetMe(w, r)
 	})
 }
 
-func (tmpObj *UserTemplate) Debug(ctx context.Context, message string) {
+func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
 }

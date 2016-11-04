@@ -22,8 +22,7 @@ func (obj *UserHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	inputProp := miniprop.NewMiniPropFromJsonReader(r.Body)
-	values := r.URL.Query()
-	token := values.Get(inputProp.GetString("token", ""))
+	token := inputProp.GetString("token", "")
 	loginResult := obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
 	userName := loginResult.AccessTokenObj.GetUserName()
 	if loginResult.IsLogin == false {
