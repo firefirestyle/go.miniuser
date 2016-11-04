@@ -60,13 +60,20 @@ func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Re
 	// load param from json
 	params, _ := ioutil.ReadAll(r.Body)
 	inputPropObj := miniprop.NewMiniPropFromJson(params)
+	token := inputPropObj.GetString("token", "")
 	dir := inputPropObj.GetString("dir", "")
 	name := inputPropObj.GetString("file", "")
 	userName := inputPropObj.GetString("userName", "")
-
+	if token != "" {
+		keyInfo, _ := obj.GetSessionMgr().MakeLoginIdInfoFromLoginId(token)
+		//		if keyInfo != nil {
+		userName = keyInfo.UserName
+		Debug(appengine.NewContext(r), ">keyinfo>:"+keyInfo.UserName)
+		//	}
+	}
 	//
 	//
-	Debug(appengine.NewContext(r), ">>"+dir+">>"+name+">>"+userName)
+	Debug(appengine.NewContext(r), ">>"+dir+">>"+name+">>"+userName+"::"+token)
 	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, obj.MakeDir(userName, dir), name, inputPropObj)
 }
 

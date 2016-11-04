@@ -32,7 +32,7 @@ func (obj *UserManager) makeCursorSrc(founds *datastore.Iterator) string {
 func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, projectId string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	if projectId != "" {
-		q = q.Filter("ProjectId =", obj.projectId)
+		q = q.Filter("RootGroup =", obj.projectId)
 	}
 	q = q.Limit(obj.limitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
@@ -41,7 +41,7 @@ func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc stri
 func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, projectId string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	if projectId != "" {
-		q = q.Filter("ProjectId =", obj.projectId)
+		q = q.Filter("RootGroup =", obj.projectId)
 	}
 	q = q.Order("-Point")
 	q = q.Limit(obj.limitOfFinding)
