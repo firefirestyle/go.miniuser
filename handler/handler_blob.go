@@ -43,7 +43,7 @@ func (obj *UserHandler) GetDirFromDir(dir string) string {
 
 func (obj *UserHandler) MakeDir(userName string, dir string) string {
 	if dir == "" {
-		return "/user/" + userName + "/" + dir
+		return "/user/" + userName
 	}
 	if strings.HasPrefix(dir, "/") {
 		dir = dir[1:]
