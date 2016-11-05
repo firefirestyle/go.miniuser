@@ -39,8 +39,7 @@ type UserHandlerOnEvent struct {
 }
 
 func NewUserHandler(callbackUrl string, //
-	config UserHandlerManagerConfig, //
-	onBlobEvent blobhandler.BlobHandlerOnEvent) *UserHandler {
+	config UserHandlerManagerConfig) *UserHandler {
 	if config.ProjectId == "" {
 		config.ProjectId = "ffstyle"
 	}
@@ -79,21 +78,20 @@ func NewUserHandler(callbackUrl string, //
 			Kind:      config.SessionKind,
 			ProjectId: config.ProjectId,
 		}),
-		//		blobHandler: blobHandlerObj,
+		blobHandler: blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
+			ProjectId:   config.ProjectId,
+			Kind:        config.BlobKind,
+			PointerKind: config.BlobPointerKind,
+			CallbackUrl: callbackUrl,
+		}),
 	}
 
-	//
-	//
-	ret.completeFunc = onBlobEvent.OnBlobComplete
-	onBlobEvent.OnBlobComplete = ret.OnBlobComplete
-
-	ret.blobHandler = blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
-		ProjectId:   config.ProjectId,
-		Kind:        config.BlobKind,
-		PointerKind: config.BlobPointerKind,
-		CallbackUrl: callbackUrl,
-	}, onBlobEvent)
+	ret.blobHandler.GetBlobHandleEvent().OnBlobComplete = ret.OnBlobComplete
 	return ret
+}
+
+func (obj *UserHandler) GetBlobHandler() *blobhandler.BlobHandler {
+	return obj.blobHandler
 }
 
 func (obj *UserHandler) AddTwitterSession(twitterConfig twitter.TwitterOAuthConfig) {
