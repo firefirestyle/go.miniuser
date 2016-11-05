@@ -80,22 +80,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 			userhundler.UserHandlerManagerConfig{ //
 				ProjectId: tmpObj.config.GroupName,
 				UserKind:  tmpObj.config.KindBaseName,
-			}, //
-			twitter.TwitterOAuthConfig{
-				ConsumerKey:       tmpObj.config.TwitterConsumerKey,
-				ConsumerSecret:    tmpObj.config.TwitterConsumerSecret,
-				AccessToken:       tmpObj.config.TwitterAccessToken,
-				AccessTokenSecret: tmpObj.config.TwitterAccessTokenSecret,
-				CallbackUrl:       "http://" + appengine.DefaultVersionHostname(ctx) + "" + UrlTwitterTokenCallback,
-				SecretSign:        appengine.VersionID(ctx),
-			}, //
-			facebook.FacebookOAuthConfig{
-				ConfigFacebookAppSecret: tmpObj.config.FacebookAppSecret,
-				ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
-				SecretSign:              appengine.VersionID(ctx),
-				CallbackUrl:             "http://" + v + "" + UrlFacebookTokenCallback,
 			},
-			userhundler.UserHandlerOnEvent{}, //
 			blobhandler.BlobHandlerOnEvent{
 				OnBlobRequest: func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (string, map[string]string, error) {
 					ret := tmpObj.CheckLogin(r, input)
@@ -105,6 +90,20 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 					return ret.AccessTokenObj.GetLoginId(), map[string]string{}, nil
 				},
 			})
+		tmpObj.userHandlerObj.AddFacebookSession(facebook.FacebookOAuthConfig{
+			ConfigFacebookAppSecret: tmpObj.config.FacebookAppSecret,
+			ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
+			SecretSign:              appengine.VersionID(ctx),
+			CallbackUrl:             "http://" + v + "" + UrlFacebookTokenCallback,
+		})
+		tmpObj.userHandlerObj.AddTwitterSession(twitter.TwitterOAuthConfig{
+			ConsumerKey:       tmpObj.config.TwitterConsumerKey,
+			ConsumerSecret:    tmpObj.config.TwitterConsumerSecret,
+			AccessToken:       tmpObj.config.TwitterAccessToken,
+			AccessTokenSecret: tmpObj.config.TwitterAccessTokenSecret,
+			CallbackUrl:       "http://" + appengine.DefaultVersionHostname(ctx) + "" + UrlTwitterTokenCallback,
+			SecretSign:        appengine.VersionID(ctx),
+		})
 	}
 	return tmpObj.userHandlerObj
 }

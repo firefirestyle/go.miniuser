@@ -14,7 +14,7 @@ import (
 	"google.golang.org/appengine"
 )
 
-func (obj *UserHandler) GetFacebookHandlerObj(config facebook.FacebookOAuthConfig) *facebook.FacebookHandler {
+func (obj *UserHandler) NewFacebookHandlerObj(config facebook.FacebookOAuthConfig) *facebook.FacebookHandler {
 	twitterHandlerObj := facebook.NewFacebookHandler( //
 		config, facebook.FacebookHundlerOnEvent{
 			OnFoundUser: func(w http.ResponseWriter, r *http.Request, handler *facebook.FacebookHandler, meObj *facebook.GetMeResponse, token *facebook.AccessTokenResponse) map[string]string {
@@ -48,7 +48,7 @@ func (obj *UserHandler) GetFacebookHandlerObj(config facebook.FacebookOAuthConfi
 //
 //
 //
-func (obj *UserHandler) GetTwitterHandlerObj(config twitter.TwitterOAuthConfig) *twitter.TwitterHandler {
+func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) *twitter.TwitterHandler {
 	twitterHandlerObj := twitter.NewTwitterHandler( //
 		config, twitter.TwitterHundlerOnEvent{
 			OnFoundUser: func(w http.ResponseWriter, r *http.Request, handler *twitter.TwitterHandler, accesssToken *twitter.SendAccessTokenResult) map[string]string {

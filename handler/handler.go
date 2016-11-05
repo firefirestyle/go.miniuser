@@ -40,9 +40,6 @@ type UserHandlerOnEvent struct {
 
 func NewUserHandler(callbackUrl string, //
 	config UserHandlerManagerConfig, //
-	twitterConfig twitter.TwitterOAuthConfig,
-	facebookConfig facebook.FacebookOAuthConfig,
-	onEvents UserHandlerOnEvent, //
 	onBlobEvent blobhandler.BlobHandlerOnEvent) *UserHandler {
 	if config.ProjectId == "" {
 		config.ProjectId = "ffstyle"
@@ -84,8 +81,7 @@ func NewUserHandler(callbackUrl string, //
 		}),
 		//		blobHandler: blobHandlerObj,
 	}
-	ret.twitterHandler = ret.GetTwitterHandlerObj(twitterConfig)
-	ret.facebookHandler = ret.GetFacebookHandlerObj(facebookConfig)
+
 	//
 	//
 	ret.completeFunc = onBlobEvent.OnBlobComplete
@@ -98,6 +94,18 @@ func NewUserHandler(callbackUrl string, //
 		CallbackUrl: callbackUrl,
 	}, onBlobEvent)
 	return ret
+}
+
+func (obj *UserHandler) AddTwitterSession(twitterConfig twitter.TwitterOAuthConfig) {
+	obj.twitterHandler = obj.NewTwitterHandlerObj(twitterConfig)
+}
+
+func (obj *UserHandler) AddFacebookSession(facebookConfig facebook.FacebookOAuthConfig) {
+	obj.facebookHandler = obj.NewFacebookHandlerObj(facebookConfig)
+}
+
+func (obj *UserHandler) GetUserHandleEvent() {
+	//obj.
 }
 
 func (obj *UserHandler) GetSessionMgr() *minisession.SessionManager {
