@@ -36,6 +36,8 @@ const (
 )
 
 type UserTemplateConfig struct {
+	GroupName                string
+	KindBaseName             string
 	TwitterConsumerKey       string
 	TwitterConsumerSecret    string
 	TwitterAccessToken       string
@@ -49,6 +51,13 @@ type UserTemplate struct {
 }
 
 func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
+	if config.GroupName != "" {
+		config.GroupName = "FFS"
+	}
+	if config.KindBaseName != "" {
+		config.KindBaseName = "FFSUser"
+	}
+
 	return &UserTemplate{
 		config: config,
 	}
@@ -69,10 +78,8 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 		}
 		tmpObj.userHandlerObj = userhundler.NewUserHandler(UrlUserCallbackBlobUrl,
 			userhundler.UserHandlerManagerConfig{ //
-				ProjectId:   "firefirestyle",
-				UserKind:    "user",
-				RelayIdKind: "relayId",
-				SessionKind: "session",
+				ProjectId: tmpObj.config.GroupName,
+				UserKind:  tmpObj.config.KindBaseName,
 			}, //
 			twitter.TwitterOAuthConfig{
 				ConsumerKey:       tmpObj.config.TwitterConsumerKey,

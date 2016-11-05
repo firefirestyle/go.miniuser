@@ -51,16 +51,16 @@ func NewUserHandler(callbackUrl string, //
 		config.UserKind = "ffuser"
 	}
 	if config.RelayIdKind == "" {
-		config.RelayIdKind = "ffuser-pointer"
+		config.RelayIdKind = config.UserKind + "-pointer"
 	}
 	if config.SessionKind == "" {
-		config.SessionKind = "ffuser-session"
+		config.SessionKind = config.UserKind + "-session"
 	}
 	if config.BlobKind == "" {
-		config.BlobKind = "ffuser-blob"
+		config.BlobKind = config.UserKind + "-blob"
 	}
 	if config.BlobPointerKind == "" {
-		config.BlobPointerKind = config.BlobKind + "-pointer"
+		config.BlobPointerKind = config.UserKind + "-blob-pointer"
 	}
 	if config.BlobSign == "" {
 		config.BlobSign = miniprop.MakeRandomId()
