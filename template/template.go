@@ -39,6 +39,7 @@ const (
 type UserTemplateConfig struct {
 	GroupName                string
 	KindBaseName             string
+	PrivateKey               string
 	TwitterConsumerKey       string
 	TwitterConsumerSecret    string
 	TwitterAccessToken       string
@@ -85,6 +86,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 			userhundler.UserHandlerManagerConfig{ //
 				RootGroup: tmpObj.config.GroupName,
 				UserKind:  tmpObj.config.KindBaseName,
+				BlobSign:  tmpObj.config.PrivateKey,
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
 			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {

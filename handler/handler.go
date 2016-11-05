@@ -13,6 +13,8 @@ import (
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
+	//
+	"crypto/sha1"
 )
 
 type UserHandler struct {
@@ -59,7 +61,7 @@ func NewUserHandler(callbackUrl string, //
 		config.BlobPointerKind = config.UserKind + "-blob-pointer"
 	}
 	if config.BlobSign == "" {
-		config.BlobSign = miniprop.MakeRandomId()
+		config.BlobSign = string(sha1.New().Sum([]byte("" + config.RootGroup + "&" + config.UserKind)))
 	}
 	//
 
