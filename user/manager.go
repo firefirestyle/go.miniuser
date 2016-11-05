@@ -8,13 +8,13 @@ import (
 )
 
 type UserManagerConfig struct {
-	ProjectId       string
+	RootGroup       string
 	UserKind        string
 	UserPointerKind string
 }
 
 type UserManager struct {
-	projectId      string
+	rootGroup      string
 	userKind       string
 	limitOfFinding int
 	pointerManager *minipointer.PointerManager
@@ -22,11 +22,11 @@ type UserManager struct {
 
 func NewUserManager(config UserManagerConfig) *UserManager {
 	obj := new(UserManager)
-	obj.projectId = config.ProjectId
+	obj.rootGroup = config.RootGroup
 	obj.userKind = config.UserKind
 	obj.limitOfFinding = 10
 	obj.pointerManager = minipointer.NewPointerManager(minipointer.PointerManagerConfig{
-		ProjectId: config.ProjectId,
+		RootGroup: config.RootGroup,
 		Kind:      config.UserPointerKind,
 	})
 

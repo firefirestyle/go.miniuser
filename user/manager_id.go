@@ -6,7 +6,7 @@ import (
 
 type UserKeyInfo struct {
 	Kind      string
-	ProjectId string
+	RootGroup string
 	UserName  string
 	Sign      string
 }
@@ -14,7 +14,7 @@ type UserKeyInfo struct {
 func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign string) string {
 	propObj := miniprop.NewMiniProp()
 	propObj.SetString("k", obj.userKind)
-	propObj.SetString("p", obj.projectId)
+	propObj.SetString("p", obj.rootGroup)
 	propObj.SetString("n", userName)
 	propObj.SetString("s", sign)
 	return string(propObj.ToJson())
@@ -24,7 +24,7 @@ func (obj *UserManager) GetUserKeyInfo(stringId string) *UserKeyInfo {
 	propObj := miniprop.NewMiniPropFromJson([]byte(stringId))
 	return &UserKeyInfo{
 		Kind:      propObj.GetString("k", ""),
-		ProjectId: propObj.GetString("p", ""),
+		RootGroup: propObj.GetString("p", ""),
 		UserName:  propObj.GetString("n", ""),
 		Sign:      propObj.GetString("s", ""),
 	}

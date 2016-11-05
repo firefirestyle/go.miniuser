@@ -26,7 +26,7 @@ type UserHandler struct {
 }
 
 type UserHandlerManagerConfig struct {
-	ProjectId       string
+	RootGroup       string
 	UserKind        string
 	RelayIdKind     string
 	SessionKind     string
@@ -40,8 +40,8 @@ type UserHandlerOnEvent struct {
 
 func NewUserHandler(callbackUrl string, //
 	config UserHandlerManagerConfig) *UserHandler {
-	if config.ProjectId == "" {
-		config.ProjectId = "ffstyle"
+	if config.RootGroup == "" {
+		config.RootGroup = "ffstyle"
 	}
 	if config.UserKind == "" {
 		config.UserKind = "ffuser"
@@ -65,28 +65,28 @@ func NewUserHandler(callbackUrl string, //
 
 	ret := &UserHandler{
 		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
-			ProjectId:       config.ProjectId,
+			RootGroup:       config.RootGroup,
 			UserKind:        config.UserKind,
 			UserPointerKind: config.RelayIdKind,
 		}),
 		relayIdMgr: minipointer.NewPointerManager( //
 			minipointer.PointerManagerConfig{
 				Kind:      config.RelayIdKind,
-				ProjectId: config.ProjectId,
+				RootGroup: config.RootGroup,
 			}),
 		sessionMgr: minisession.NewSessionManager(minisession.SessionManagerConfig{
 			Kind:      config.SessionKind,
-			ProjectId: config.ProjectId,
+			RootGroup: config.RootGroup,
 		}),
 		blobHandler: blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
-			ProjectId:   config.ProjectId,
+			RootGroup:   config.RootGroup,
 			Kind:        config.BlobKind,
 			PointerKind: config.BlobPointerKind,
 			CallbackUrl: callbackUrl,
 		}),
 	}
 
-	ret.blobHandler.GetBlobHandleEvent().OnBlobComplete = append(ret.blobHandler.GetBlobHandleEvent().OnBlobComplete, ret.OnBlobComplete)
+	ret.blobHandler.GetBlobHandleEvent().OnBlobCompleteList = append(ret.blobHandler.GetBlobHandleEvent().OnBlobCompleteList, ret.OnBlobComplete)
 	return ret
 }
 

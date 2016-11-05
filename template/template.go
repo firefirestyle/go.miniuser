@@ -78,11 +78,11 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 		}
 		tmpObj.userHandlerObj = userhundler.NewUserHandler(UrlUserCallbackBlobUrl,
 			userhundler.UserHandlerManagerConfig{ //
-				ProjectId: tmpObj.config.GroupName,
+				RootGroup: tmpObj.config.GroupName,
 				UserKind:  tmpObj.config.KindBaseName,
 			})
-		tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequest =
-			append(tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequest,
+		tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequestList =
+			append(tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequestList,
 				func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (string, map[string]string, error) {
 					ret := tmpObj.CheckLogin(r, input)
 					if ret.IsLogin == false {
