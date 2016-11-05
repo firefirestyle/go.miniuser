@@ -86,7 +86,7 @@ func NewUserHandler(callbackUrl string, //
 		}),
 	}
 
-	ret.blobHandler.GetBlobHandleEvent().OnBlobCompleteList = append(ret.blobHandler.GetBlobHandleEvent().OnBlobCompleteList, ret.OnBlobComplete)
+	ret.blobHandler.AddOnBlobComplete(ret.OnBlobComplete)
 	return ret
 }
 

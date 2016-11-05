@@ -81,15 +81,14 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				RootGroup: tmpObj.config.GroupName,
 				UserKind:  tmpObj.config.KindBaseName,
 			})
-		tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequestList =
-			append(tmpObj.userHandlerObj.GetBlobHandler().GetBlobHandleEvent().OnBlobRequestList,
-				func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (string, map[string]string, error) {
-					ret := tmpObj.CheckLogin(r, input)
-					if ret.IsLogin == false {
-						return "", map[string]string{}, errors.New("Failed in token check")
-					}
-					return ret.AccessTokenObj.GetLoginId(), map[string]string{}, nil
-				})
+		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
+			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (string, map[string]string, error) {
+				ret := tmpObj.CheckLogin(r, input)
+				if ret.IsLogin == false {
+					return "", map[string]string{}, errors.New("Failed in token check")
+				}
+				return ret.AccessTokenObj.GetLoginId(), map[string]string{}, nil
+			})
 		tmpObj.userHandlerObj.AddFacebookSession(facebook.FacebookOAuthConfig{
 			ConfigFacebookAppSecret: tmpObj.config.FacebookAppSecret,
 			ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
