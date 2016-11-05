@@ -66,3 +66,7 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 }
+
+func (obj *UserHandler) CheckLogin(r *http.Request, token string) minisession.CheckLoginIdResult {
+	return obj.GetSessionMgr().CheckLoginId(appengine.NewContext(r), token, minisession.MakeAccessTokenConfigFromRequest(r))
+}
