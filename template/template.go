@@ -55,10 +55,10 @@ type UserTemplate struct {
 }
 
 func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
-	if config.GroupName != "" {
+	if config.GroupName == "" {
 		config.GroupName = "FFS"
 	}
-	if config.KindBaseName != "" {
+	if config.KindBaseName == "" {
 		config.KindBaseName = "FFSUser"
 	}
 
