@@ -37,9 +37,11 @@ const (
 )
 
 type UserTemplateConfig struct {
-	GroupName                string
-	KindBaseName             string
-	PrivateKey               string
+	GroupName       string
+	KindBaseName    string
+	PrivateKey      string
+	AllowInvalidSSL bool
+
 	TwitterConsumerKey       string
 	TwitterConsumerSecret    string
 	TwitterAccessToken       string
@@ -109,6 +111,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 			ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
 			SecretSign:              appengine.VersionID(ctx),
 			CallbackUrl:             "http://" + v + "" + UrlFacebookTokenCallback,
+			AllowInvalidSSL:         tmpObj.config.AllowInvalidSSL,
 		})
 		tmpObj.userHandlerObj.AddTwitterSession(twitter.TwitterOAuthConfig{
 			ConsumerKey:       tmpObj.config.TwitterConsumerKey,
@@ -117,6 +120,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 			AccessTokenSecret: tmpObj.config.TwitterAccessTokenSecret,
 			CallbackUrl:       "http://" + appengine.DefaultVersionHostname(ctx) + "" + UrlTwitterTokenCallback,
 			SecretSign:        appengine.VersionID(ctx),
+			AllowInvalidSSL:   tmpObj.config.AllowInvalidSSL,
 		})
 	}
 	return tmpObj.userHandlerObj
