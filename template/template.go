@@ -5,6 +5,7 @@ import (
 
 	"errors"
 
+	miniblob "github.com/firefirestyle/go.miniblob/blob"
 	blobhandler "github.com/firefirestyle/go.miniblob/handler"
 	"github.com/firefirestyle/go.minioauth/twitter"
 	"github.com/firefirestyle/go.miniprop"
@@ -67,9 +68,13 @@ func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp
 	ctx := appengine.NewContext(r)
 	token := input.GetString("token", "")
 	Debug(ctx, "CheckLogin ++>"+token)
-	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
+	return tmpObj.CheckLoginFromToken(r, token)
 }
 
+func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string) minisession.CheckLoginIdResult {
+	ctx := appengine.NewContext(r)
+	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
+}
 func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.UserHandler {
 	if tmpObj.userHandlerObj == nil {
 		v := appengine.DefaultVersionHostname(ctx)
@@ -82,13 +87,21 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				UserKind:  tmpObj.config.KindBaseName,
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
-			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (string, map[string]string, error) {
+			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {
 				ret := tmpObj.CheckLogin(r, input)
 				if ret.IsLogin == false {
-					return "", map[string]string{}, errors.New("Failed in token check")
+					return map[string]string{}, errors.New("Failed in token check")
 				}
-				return ret.AccessTokenObj.GetLoginId(), map[string]string{}, nil
+				return map[string]string{"tk": ret.AccessTokenObj.GetLoginId()}, nil
 			})
+		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobComplete(func(w http.ResponseWriter, r *http.Request, p *miniprop.MiniProp, h *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
+			pp := tmpObj.CheckLoginFromToken(r, r.FormValue("tk"))
+			if pp.IsLogin == true {
+				return nil
+			} else {
+				return errors.New("errors")
+			}
+		})
 		tmpObj.userHandlerObj.AddFacebookSession(facebook.FacebookOAuthConfig{
 			ConfigFacebookAppSecret: tmpObj.config.FacebookAppSecret,
 			ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
