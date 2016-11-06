@@ -7,6 +7,7 @@ import (
 
 	"errors"
 
+	"github.com/firefirestyle/go.minipointer"
 	"golang.org/x/net/context"
 )
 
@@ -39,6 +40,10 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 		return nil, err2
 	}
 	return nextUserObj, nil
+}
+
+func (obj *UserManager) GetPointerFromUserName(ctx context.Context, userName string) (*minipointer.Pointer, error) {
+	return obj.pointerManager.GetPointer(ctx, userName, minipointer.TypePointer)
 }
 
 func (obj *UserManager) GetUserFromRelayId(ctx context.Context, userName string) (*User, error) {
