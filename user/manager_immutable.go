@@ -29,7 +29,7 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 	}
 	replayObj.SetValue(nextUserObj.GetUserName())
 	replayObj.SetSign(sign)
-	replayObj.Save(ctx)
+	obj.pointerManager.Save(ctx, replayObj)
 	//
 	err1 := obj.SaveUser(ctx, nextUserObj)
 	if nil != err1 {

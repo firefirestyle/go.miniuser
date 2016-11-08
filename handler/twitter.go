@@ -119,7 +119,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 		pointerObj.SetValue(userObj.GetUserName())
 		pointerObj.SetSign("")
 		Debug(ctx, "LoginRegistFromTwitter :")
-		err := pointerObj.Save(ctx)
+		err := obj.relayIdMgr.Save(ctx, pointerObj)
 		if err != nil {
 			return needMake, nil, nil, errors.New("failed to save pointreobj : " + err.Error())
 		}
@@ -130,7 +130,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 
 	//
 	// save relayId
-	err = relayIdObj.Save(ctx)
+	err = obj.relayIdMgr.Save(ctx, relayIdObj)
 	if err != nil {
 		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
 	}
