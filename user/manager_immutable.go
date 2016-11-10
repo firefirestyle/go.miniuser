@@ -19,7 +19,7 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 	sign := strconv.Itoa(time.Now().Nanosecond())
 	nextUserObj, _ := obj.GetUserFromUserName(ctx, userName, sign)
 
-	replayObj := obj.pointerManager.GetPointerForRelayId(ctx, userName)
+	replayObj := obj.pointerManager.GetPointerWithNewForRelayId(ctx, userName)
 	currentSign := replayObj.GetSign()
 
 	// copy
@@ -49,7 +49,7 @@ func (obj *UserManager) GetPointerFromUserName(ctx context.Context, userName str
 func (obj *UserManager) GetUserFromRelayId(ctx context.Context, userName string) (*User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 
-	pointerObj := obj.pointerManager.GetPointerForRelayId(ctx, userName)
+	pointerObj := obj.pointerManager.GetPointerWithNewForRelayId(ctx, userName)
 	if pointerObj.GetValue() == "" {
 		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
 		return nil, errors.New("not found")

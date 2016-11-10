@@ -103,7 +103,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 	if relayIdObj.GetValue() != "" {
 		needMake = true
 		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerForRelayId(ctx, relayIdObj.GetValue())
+		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, relayIdObj.GetValue())
 		if pointerObj.GetValue() != "" {
 			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 			if err != nil {
@@ -115,7 +115,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 		userObj = obj.GetManager().NewNewUser(ctx, "")
 		userObj.SetDisplayName(screenName)
 		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerForRelayId(ctx, userObj.GetUserName())
+		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, userObj.GetUserName())
 		pointerObj.SetValue(userObj.GetUserName())
 		pointerObj.SetSign("")
 		Debug(ctx, "LoginRegistFromTwitter :")
