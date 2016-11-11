@@ -21,27 +21,34 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 	displayName := inputProp.GetString("displayName", "")
 	content := inputProp.GetString("content", "")
 
+	reqErr := obj.OnUpdateUserRequest(w, r, obj, inputProp, outputProp)
+	if reqErr != nil {
+		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+		obj.HandleError(w, r, outputProp, 2001, reqErr.Error())
+		return
+	}
 	usrObj, userErr := obj.GetManager().GetUserFromRelayId(ctx, userName)
 	if userErr != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		outputProp.SetInt("errorCode", 2001)
-		outputProp.SetString("errorMessage", userErr.Error())
-		w.Write(outputProp.ToJson())
+		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+		obj.HandleError(w, r, outputProp, 2002, userErr.Error())
 		return
 	}
 	usrObj.SetDisplayName(displayName)
 	usrObj.SetCont(content)
+	defChec := obj.OnUpdateUserBeforeSave(w, r, obj, usrObj, inputProp, outputProp)
+	if defChec != nil {
+		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+		obj.HandleError(w, r, outputProp, 2003, defChec.Error())
+		return
+	}
 	nextUserObj, nextUserErr := obj.GetManager().SaveUserWithImmutable(ctx, usrObj)
 	if nextUserErr != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		outputProp.SetInt("errorCode", 2002)
-		outputProp.SetString("errorMessage", nextUserErr.Error())
-		w.Write(outputProp.ToJson())
+		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+		obj.HandleError(w, r, outputProp, 2004, userErr.Error())
 	} else {
+
+		obj.OnUpdateUserSuccess(w, r, obj, usrObj, inputProp, outputProp)
 		w.WriteHeader(http.StatusOK)
-		//		outputProp.SetString("sign", nextUserObj.GetSign())
-		//		outputProp.SetString("userName", nextUserObj.GetUserName())
-		//		outputProp.SetString("key", nextUserObj.GetStringId())
 		w.Write(nextUserObj.ToJsonPublic())
 	}
 }

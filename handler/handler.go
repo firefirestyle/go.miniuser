@@ -40,9 +40,13 @@ type UserHandlerManagerConfig struct {
 }
 
 type UserHandlerOnEvent struct {
-	OnGetUserRequestList []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp) error
-	OnGetUserFailedList  []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp)
-	OnGetUserSuccessList []func(w http.ResponseWriter, r *http.Request, h *UserHandler, i *miniuser.User, o *miniprop.MiniProp) error
+	OnGetUserRequestList       []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp) error
+	OnGetUserFailedList        []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp)
+	OnGetUserSuccessList       []func(w http.ResponseWriter, r *http.Request, h *UserHandler, i *miniuser.User, o *miniprop.MiniProp) error
+	OnUpdateUserRequestList    []func(w http.ResponseWriter, r *http.Request, h *UserHandler, i *miniprop.MiniProp, o *miniprop.MiniProp) error
+	OnUpdateUserFailedList     []func(w http.ResponseWriter, r *http.Request, h *UserHandler, i *miniprop.MiniProp, o *miniprop.MiniProp)
+	OnUpdateUserBeforeSaveList []func(w http.ResponseWriter, r *http.Request, h *UserHandler, u *miniuser.User, i *miniprop.MiniProp, o *miniprop.MiniProp) error
+	OnUpdateUserSuccessList    []func(w http.ResponseWriter, r *http.Request, h *UserHandler, u *miniuser.User, i *miniprop.MiniProp, o *miniprop.MiniProp) error
 }
 
 func NewUserHandler(callbackUrl string, //
