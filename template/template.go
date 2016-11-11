@@ -11,15 +11,13 @@ import (
 	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
 
-	userhundler "github.com/firefirestyle/go.miniuser/handler"
-	//
+	"sync"
+
 	"github.com/firefirestyle/go.minioauth/facebook"
+	userhundler "github.com/firefirestyle/go.miniuser/handler"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
-
-	//
-	"sync"
 )
 
 const (
