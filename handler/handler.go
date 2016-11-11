@@ -28,13 +28,14 @@ type UserHandler struct {
 }
 
 type UserHandlerManagerConfig struct {
-	RootGroup       string
-	UserKind        string
-	RelayIdKind     string
-	SessionKind     string
-	BlobKind        string
-	BlobPointerKind string
-	BlobSign        string
+	RootGroup                  string
+	UserKind                   string
+	RelayIdKind                string
+	SessionKind                string
+	BlobKind                   string
+	BlobPointerKind            string
+	BlobSign                   string
+	MemcachedOnlyInBlobPointer bool
 }
 
 type UserHandlerOnEvent struct {
@@ -81,10 +82,11 @@ func NewUserHandler(callbackUrl string, //
 			RootGroup: config.RootGroup,
 		}),
 		blobHandler: blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
-			RootGroup:   config.RootGroup,
-			Kind:        config.BlobKind,
-			PointerKind: config.BlobPointerKind,
-			CallbackUrl: callbackUrl,
+			RootGroup:              config.RootGroup,
+			Kind:                   config.BlobKind,
+			PointerKind:            config.BlobPointerKind,
+			CallbackUrl:            callbackUrl,
+			MemcachedOnlyInPointer: config.MemcachedOnlyInBlobPointer,
 		}),
 	}
 

@@ -48,7 +48,10 @@ type UserTemplateConfig struct {
 	TwitterAccessTokenSecret string
 	FacebookAppSecret        string
 	FacebookAppId            string
+
+	MemcachedOnlyInBlobPointer bool
 }
+
 type UserTemplate struct {
 	config         UserTemplateConfig
 	userHandlerObj *userhundler.UserHandler
@@ -78,6 +81,7 @@ func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string) m
 	ctx := appengine.NewContext(r)
 	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
 }
+
 func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.UserHandler {
 	if tmpObj.userHandlerObj == nil {
 		v := appengine.DefaultVersionHostname(ctx)
@@ -86,9 +90,10 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 		}
 		tmpObj.userHandlerObj = userhundler.NewUserHandler(UrlUserCallbackBlobUrl,
 			userhundler.UserHandlerManagerConfig{ //
-				RootGroup: tmpObj.config.GroupName,
-				UserKind:  tmpObj.config.KindBaseName,
-				BlobSign:  tmpObj.config.PrivateKey,
+				RootGroup:                  tmpObj.config.GroupName,
+				UserKind:                   tmpObj.config.KindBaseName,
+				BlobSign:                   tmpObj.config.PrivateKey,
+				MemcachedOnlyInBlobPointer: tmpObj.config.MemcachedOnlyInBlobPointer,
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
 			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {
