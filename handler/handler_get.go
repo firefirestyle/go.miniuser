@@ -36,6 +36,13 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	var usrObj *miniuser.User = nil
 	var userErr error = nil
 
+	outputProp := miniprop.NewMiniProp()
+	reqErr := obj.OnGetUserRequest(w, r, obj, outputProp)
+	if reqErr != nil {
+		obj.OnGetUserFailed(w, r, obj, outputProp)
+		obj.HandleError(w, r, outputProp, 2001, reqErr.Error())
+		return
+	}
 	if userName != "" {
 		if sign == "" {
 			usrObj, userErr = obj.GetManager().GetUserFromRelayId(ctx, userName)
@@ -45,26 +52,34 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	} else if key != "" {
 		usrObj, userErr = obj.GetManager().GetUserFromKey(ctx, key)
 	} else {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Wrong Request"))
+		obj.OnGetUserFailed(w, r, obj, outputProp)
+		obj.HandleError(w, r, outputProp, 2002, "wrong request")
 		return
 	}
 
 	if userErr != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Not found User 1"))
-		return
-	} else {
-		if key != "" || sign != "" {
-			w.Header().Set("Cache-Control", "public, max-age=2592000")
-		}
-		if includePrivate == true {
-			w.Write(usrObj.ToJson())
-		} else {
-			w.Write(usrObj.ToJsonPublic())
-		}
+		obj.OnGetUserFailed(w, r, obj, outputProp)
+		obj.HandleError(w, r, outputProp, 2002, reqErr.Error())
 		return
 	}
+	//
+	//
+	if key != "" || sign != "" {
+		w.Header().Set("Cache-Control", "public, max-age=2592000")
+	}
+	if includePrivate == true {
+		outputProp = miniprop.NewMiniPropFromMap(usrObj.ToMapAll())
+	} else {
+		outputProp = miniprop.NewMiniPropFromMap(usrObj.ToMapPublic())
+	}
+	errSuc := obj.OnGetUserSuccess(w, r, obj, usrObj, outputProp)
+	if errSuc != nil {
+		obj.OnGetUserFailed(w, r, obj, outputProp)
+		obj.HandleError(w, r, outputProp, 2002, errSuc.Error())
+		return
+	}
+	w.Write(outputProp.ToJson())
+	return
 }
 
 func (obj *UserHandler) CheckLogin(r *http.Request, token string) minisession.CheckLoginIdResult {
