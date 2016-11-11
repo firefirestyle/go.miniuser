@@ -19,6 +19,7 @@ import (
 	"google.golang.org/appengine/log"
 
 	//
+	"sync"
 )
 
 const (
@@ -55,6 +56,8 @@ type UserTemplateConfig struct {
 type UserTemplate struct {
 	config         UserTemplateConfig
 	userHandlerObj *userhundler.UserHandler
+	initOpt        func(context.Context)
+	once           *sync.Once
 }
 
 func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
@@ -67,6 +70,18 @@ func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
 
 	return &UserTemplate{
 		config: config,
+		once:   new(sync.Once),
+	}
+}
+
+func (tmpObj *UserTemplate) SetInitFunc(f func(ctx context.Context)) {
+	tmpObj.initOpt = f
+}
+
+func (tmpObj *UserTemplate) InitalizeTemplate(ctx context.Context) {
+	tmpObj.GetUserHundlerObj(ctx)
+	if tmpObj != nil {
+		tmpObj.initOpt(ctx)
 	}
 }
 
@@ -134,57 +149,100 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 func (tmpObj *UserTemplate) InitUserApi() {
 	// twitter
 	http.HandleFunc(UrlTwitterTokenUrlRedirect, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleTwitterRequestToken(w, r)
 	})
+
 	http.HandleFunc(UrlTwitterTokenCallback, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleTwitterCallbackToken(w, r)
 	})
+
 	// facebook
 	http.HandleFunc(UrlFacebookTokenUrlRedirect, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleFacebookRequestToken(w, r)
 	})
+
 	http.HandleFunc(UrlFacebookTokenCallback, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleFacebookCallbackToken(w, r)
 	})
+
 	// user
 	http.HandleFunc(UrlUserGet, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleGet(w, r)
 	})
+
 	http.HandleFunc(UrlUserFind, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleFind(w, r)
 	})
+
 	http.HandleFunc(UrlUserRequestBlobUrl, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobRequestToken(w, r)
 	})
+
 	http.HandleFunc(UrlUserCallbackBlobUrl, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobUpdated(w, r)
 	})
+
 	http.HandleFunc(UrlUserBlobGet, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobGet(w, r)
 	})
 
 	// me
 	http.HandleFunc(UrlMeLogout, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleLogout(w, r)
 	})
 
 	http.HandleFunc(UrlMeUpdate, func(w http.ResponseWriter, r *http.Request) {
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleUpdateInfo(w, r)
 	})
 
 	http.HandleFunc(UrlMeGet, func(w http.ResponseWriter, r *http.Request) {
-		Debug(appengine.NewContext(r), "UrlMeGet called -->")
+		tmpObj.once.Do(func() {
+			tmpObj.InitalizeTemplate(appengine.NewContext(r))
+		})
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleGetMe(w, r)
 	})
