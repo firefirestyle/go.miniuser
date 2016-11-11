@@ -8,6 +8,7 @@ import (
 	"github.com/firefirestyle/go.minioauth/facebook"
 	"github.com/firefirestyle/go.minioauth/twitter"
 	"github.com/firefirestyle/go.minipointer"
+	"github.com/firefirestyle/go.miniprop"
 	"github.com/firefirestyle/go.minisession"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
@@ -92,7 +93,10 @@ func (obj *UserHandler) LoginRegistFromFacebook(ctx context.Context, screenName 
 
 func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName string, userId string, oauthToken string, snsType string) (bool, *minipointer.Pointer, *miniuser.User, error) {
 
-	relayIdObj := obj.relayIdMgr.GetPointerWithNew(ctx, screenName, userId, snsType, map[string]string{"token": oauthToken})
+	snsIdProp := miniprop.NewMiniProp()
+	snsIdProp.SetString("n", screenName)
+	snsIdProp.SetString("i", userId)
+	relayIdObj := obj.relayIdMgr.GetPointerWithNew(ctx, string(snsIdProp.ToJson()), snsType, map[string]string{"token": oauthToken})
 	needMake := false
 
 	//
