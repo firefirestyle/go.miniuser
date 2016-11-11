@@ -24,6 +24,7 @@ type UserHandler struct {
 	blobHandler     *blobhandler.BlobHandler
 	twitterHandler  *twitter.TwitterHandler
 	facebookHandler *facebook.FacebookHandler
+	onEvents        UserHandlerOnEvent
 	completeFunc    func(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, hh *blobhandler.BlobHandler, blobObj *miniblob.BlobItem) error
 }
 
@@ -39,6 +40,9 @@ type UserHandlerManagerConfig struct {
 }
 
 type UserHandlerOnEvent struct {
+	OnGetUserRequestList []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp) error
+	OnGetUserFailedList  []func(w http.ResponseWriter, r *http.Request, h *UserHandler, o *miniprop.MiniProp)
+	OnGetUserSuccessList []func(w http.ResponseWriter, r *http.Request, h *UserHandler, i *miniuser.User, o *miniprop.MiniProp) error
 }
 
 func NewUserHandler(callbackUrl string, //
@@ -88,6 +92,7 @@ func NewUserHandler(callbackUrl string, //
 			CallbackUrl:            callbackUrl,
 			MemcachedOnlyInPointer: config.MemcachedOnlyInBlobPointer,
 		}),
+		onEvents: UserHandlerOnEvent{},
 	}
 
 	ret.blobHandler.AddOnBlobComplete(ret.OnBlobComplete)
