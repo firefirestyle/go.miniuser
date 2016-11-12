@@ -51,7 +51,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 	sucErr := obj.OnUpdateUserSuccess(w, r, obj, usrObj, inputProp, outputProp)
 	if sucErr != nil {
 		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
-		obj.HandleError(w, r, outputProp, 2004, sucErr.Error())
+		obj.HandleError(w, r, outputProp, 2005, sucErr.Error())
 		return
 	}
 	outputProp.CopiedOver(miniprop.NewMiniPropFromMap(nextUserObj.ToMapPublic()))

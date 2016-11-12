@@ -56,24 +56,23 @@ func (obj *UserHandler) MakeDir(userName string, dir string) string {
 }
 
 func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Request) {
+
 	//
-	// load param from json
+	//
 	params, _ := ioutil.ReadAll(r.Body)
 	inputPropObj := miniprop.NewMiniPropFromJson(params)
 	token := inputPropObj.GetString("token", "")
+	if token == "" {
+		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "not found token")
+		return
+	}
+	keyInfo, _ := obj.GetSessionMgr().MakeLoginIdInfoFromLoginId(token)
+	userName := keyInfo.UserName
 	dir := inputPropObj.GetString("dir", "")
 	name := inputPropObj.GetString("file", "")
-	userName := inputPropObj.GetString("userName", "")
-	if token != "" {
-		keyInfo, _ := obj.GetSessionMgr().MakeLoginIdInfoFromLoginId(token)
-		//		if keyInfo != nil {
-		userName = keyInfo.UserName
-		Debug(appengine.NewContext(r), ">keyinfo>:"+keyInfo.UserName)
-		//	}
-	}
+
 	//
 	//
-	Debug(appengine.NewContext(r), ">>"+dir+">>"+name+">>"+userName+"::"+token)
 	obj.blobHandler.HandleBlobRequestTokenFromParams(w, r, obj.MakeDir(userName, dir), name, inputPropObj)
 }
 
