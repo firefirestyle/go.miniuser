@@ -45,10 +45,16 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 	if nextUserErr != nil {
 		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, 2004, userErr.Error())
-	} else {
-
-		obj.OnUpdateUserSuccess(w, r, obj, usrObj, inputProp, outputProp)
-		w.WriteHeader(http.StatusOK)
-		w.Write(nextUserObj.ToJsonPublic())
+		return
 	}
+	//
+	sucErr := obj.OnUpdateUserSuccess(w, r, obj, usrObj, inputProp, outputProp)
+	if sucErr != nil {
+		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+		obj.HandleError(w, r, outputProp, 2004, sucErr.Error())
+	}
+	outputProp.CopiedOver(miniprop.NewMiniPropFromMap(nextUserObj.ToMapPublic()))
+	w.WriteHeader(http.StatusOK)
+	w.Write(outputProp.ToJson())
+
 }

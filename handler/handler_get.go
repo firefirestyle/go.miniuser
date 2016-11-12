@@ -67,16 +67,17 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	if key != "" || sign != "" {
 		w.Header().Set("Cache-Control", "public, max-age=2592000")
 	}
-	if includePrivate == true {
-		outputProp = miniprop.NewMiniPropFromMap(usrObj.ToMapAll())
-	} else {
-		outputProp = miniprop.NewMiniPropFromMap(usrObj.ToMapPublic())
-	}
+
 	errSuc := obj.OnGetUserSuccess(w, r, obj, usrObj, outputProp)
 	if errSuc != nil {
 		obj.OnGetUserFailed(w, r, obj, outputProp)
 		obj.HandleError(w, r, outputProp, 2002, errSuc.Error())
 		return
+	}
+	if includePrivate == true {
+		outputProp.CopiedOver(miniprop.NewMiniPropFromMap(usrObj.ToMapAll()))
+	} else {
+		outputProp.CopiedOver(miniprop.NewMiniPropFromMap(usrObj.ToMapPublic()))
 	}
 	w.Write(outputProp.ToJson())
 	return
