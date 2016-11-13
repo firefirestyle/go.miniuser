@@ -23,7 +23,7 @@ func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
 	//}
 	var foundObj *user.FoundUser = nil
 	if mode == "-point" {
-		foundObj = obj.manager.FindUserWithPoint(ctx, cursor, projectId, keyOnly)
+		foundObj = obj.manager.FindUserWithPoint(ctx, cursor, projectId, "Main", keyOnly)
 	} else {
 		foundObj = obj.manager.FindUserWithNewOrder(ctx, cursor, projectId, keyOnly)
 	}

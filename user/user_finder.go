@@ -38,12 +38,13 @@ func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc stri
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
-func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, projectId string, keyOnly bool) *FoundUser {
+func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, projectId, pointName string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.userKind)
 	if projectId != "" {
 		q = q.Filter("RootGroup =", obj.rootGroup)
 	}
-	q = q.Order("-Point")
+	q = q.Filter("Points.Name =", pointName)
+	q = q.Order("-Points.Value")
 	q = q.Limit(obj.limitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }

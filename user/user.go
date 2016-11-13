@@ -28,7 +28,10 @@ const (
 	TypeUpdated     = "Updated"
 	TypeState       = "State"
 	TypePublicInfo  = "PublicInfo"
-	TypePoint       = "Point"
+	TypePointNames  = "PointNames"
+	TypePointValues = "PointValues"
+	TypeTagNames    = "TagNames"
+	TypeTagValues   = "TagValues"
 	TypeIconUrl     = "IconUrl"
 	TypePrivateInfo = "PrivateInfo"
 	TypeSign        = "Sign"
@@ -43,13 +46,17 @@ type GaeUserItem struct {
 	Created     time.Time
 	Updated     time.Time
 	State       string
-	PublicInfo  string `datastore:",noindex"`
-	PrivateInfo string `datastore:",noindex"`
-	Point       int
-	IconUrl     string `datastore:",noindex"`
-	Sign        string `datastore:",noindex"`
-	Cont        string `datastore:",noindex"`
-	Tags        string `datastore:",noindex"`
+	PublicInfo  string    `datastore:",noindex"`
+	PrivateInfo string    `datastore:",noindex"`
+	PointNames  []string  `datastore:"Points.Name"`
+	PointValues []float64 `datastore:"Points.Value"`
+	TagNames    []string  `datastore:"Tags.Name"`
+	TagValues   []string  `datastore:"Tags.Value"`
+	//Point   int
+	IconUrl string `datastore:",noindex"`
+	Sign    string `datastore:",noindex"`
+	Cont    string `datastore:",noindex"`
+	Tags    string `datastore:",noindex"`
 }
 
 type User struct {
@@ -163,12 +170,34 @@ func (obj *User) SetPrivateInfo(v string) {
 	obj.gaeObject.PrivateInfo = v
 }
 
-func (obj *User) GetPoint() int {
-	return obj.gaeObject.Point
+func (obj *User) GetPoint(name string) float64 {
+	index := -1
+	for i, v := range obj.gaeObject.PointNames {
+		if v == name {
+			index = i
+			break
+		}
+	}
+	if index < 0 {
+		return 0
+	}
+	return obj.gaeObject.PointValues[index]
 }
 
-func (obj *User) SetPoint(v int) {
-	obj.gaeObject.Point = v
+func (obj *User) SetPoint(name string, v float64) {
+	index := -1
+	for i, iv := range obj.gaeObject.PointNames {
+		if iv == name {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		obj.gaeObject.PointValues = append(obj.gaeObject.PointValues, v)
+		obj.gaeObject.PointNames = append(obj.gaeObject.PointNames, name)
+	} else {
+		obj.gaeObject.PointValues[index] = v
+	}
 }
 
 func (obj *User) SetStatus(v string) {
