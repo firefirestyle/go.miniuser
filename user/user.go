@@ -186,11 +186,15 @@ func (obj *User) GetProp(name string) string {
 	if index < 0 {
 		return ""
 	}
-	return obj.gaeObject.PropValues[index]
+	p := miniprop.NewMiniPropFromJson([]byte(obj.gaeObject.PropValues[index]))
+	return p.GetString(name, "")
 }
 
 func (obj *User) SetProp(name, v string) {
 	index := -1
+	p := miniprop.NewMiniProp()
+	p.SetString(name, v)
+	v = string(p.ToJson())
 	for i, iv := range obj.gaeObject.PropNames {
 		if iv == name {
 			index = i
