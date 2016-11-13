@@ -200,6 +200,36 @@ func (obj *User) SetPoint(name string, v float64) {
 	}
 }
 
+func (obj *User) GetProp(name string) string {
+	index := -1
+	for i, v := range obj.gaeObject.PropNames {
+		if v == name {
+			index = i
+			break
+		}
+	}
+	if index < 0 {
+		return ""
+	}
+	return obj.gaeObject.PropValues[index]
+}
+
+func (obj *User) SetProp(name, v string) {
+	index := -1
+	for i, iv := range obj.gaeObject.PropNames {
+		if iv == name {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		obj.gaeObject.PropValues = append(obj.gaeObject.PropValues, v)
+		obj.gaeObject.PropNames = append(obj.gaeObject.PropNames, name)
+	} else {
+		obj.gaeObject.PropValues[index] = v
+	}
+}
+
 func (obj *User) SetStatus(v string) {
 	obj.gaeObject.State = v
 }

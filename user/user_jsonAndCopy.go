@@ -41,6 +41,8 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.PrivateInfo = propObj.GetString(TypePrivateInfo, "")
 	userObj.gaeObject.PointValues = propObj.GetPropFloatList("", TypePointValues, []float64{})
 	userObj.gaeObject.PointNames = propObj.GetPropStringList("", TypePointNames, []string{})
+	userObj.gaeObject.PropValues = propObj.GetPropStringList("", TypePropValues, []string{})
+	userObj.gaeObject.PropNames = propObj.GetPropStringList("", TypePropNames, []string{})
 	userObj.gaeObject.IconUrl = propObj.GetString(TypeIconUrl, "")
 	userObj.gaeObject.Sign = propObj.GetString(TypeSign, "")
 	userObj.SetTags(propObj.GetPropStringList("", TypeTag, make([]string, 0)))
