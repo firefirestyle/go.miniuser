@@ -27,6 +27,7 @@ const (
 	TypeCreated     = "Created"
 	TypeUpdated     = "Updated"
 	TypeState       = "State"
+	TypeTag         = "Tag"
 	TypePublicInfo  = "PublicInfo"
 	TypePointNames  = "PointNames"
 	TypePointValues = "PointValues"
@@ -36,7 +37,6 @@ const (
 	TypePrivateInfo = "PrivateInfo"
 	TypeSign        = "Sign"
 	TypeCont        = "Cont"
-	TypeTags        = "Tags"
 )
 
 type GaeUserItem struct {
@@ -48,6 +48,7 @@ type GaeUserItem struct {
 	State       string
 	PublicInfo  string    `datastore:",noindex"`
 	PrivateInfo string    `datastore:",noindex"`
+	Tags        []string  `datastore:"Tags.Tag"`
 	PointNames  []string  `datastore:"Points.Name"`
 	PointValues []float64 `datastore:"Points.Value"`
 	PropNames   []string  `datastore:"Props.Name"`
@@ -56,7 +57,6 @@ type GaeUserItem struct {
 	IconUrl string `datastore:",noindex"`
 	Sign    string `datastore:",noindex"`
 	Cont    string `datastore:",noindex"`
-	Tags    string `datastore:",noindex"`
 }
 
 type User struct {
@@ -222,4 +222,22 @@ func (obj *User) GetSign() string {
 
 func (obj *User) GetStringId() string {
 	return obj.gaeObjectKey.StringID()
+}
+
+func (obj *User) GetTags() []string {
+	ret := make([]string, 0)
+	for _, v := range obj.gaeObject.Tags {
+		//		ret = append(ret, v.Tag)
+		ret = append(ret, v)
+	}
+	return ret
+}
+
+func (obj *User) SetTags(vs []string) {
+	//	obj.gaeObject.Tags = make([]Tag, 0)
+	obj.gaeObject.Tags = make([]string, 0)
+	for _, v := range vs {
+		//		obj.gaeObject.Tags = append(obj.gaeObject.Tags, Tag{Tag: v})
+		obj.gaeObject.Tags = append(obj.gaeObject.Tags, v)
+	}
 }

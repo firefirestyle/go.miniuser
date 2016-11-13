@@ -39,11 +39,11 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.State = propObj.GetString(TypeState, "")
 	userObj.gaeObject.PublicInfo = propObj.GetString(TypePublicInfo, "")
 	userObj.gaeObject.PrivateInfo = propObj.GetString(TypePrivateInfo, "")
-	userObj.gaeObject.PointValues = propObj.GetPropFloatList("", TypePointValues, []float64{0})
-	userObj.gaeObject.PointNames = propObj.GetPropStringList("", TypePointNames, []string{"Main"})
+	userObj.gaeObject.PointValues = propObj.GetPropFloatList("", TypePointValues, []float64{})
+	userObj.gaeObject.PointNames = propObj.GetPropStringList("", TypePointNames, []string{})
 	userObj.gaeObject.IconUrl = propObj.GetString(TypeIconUrl, "")
 	userObj.gaeObject.Sign = propObj.GetString(TypeSign, "")
-	userObj.gaeObject.Tags = propObj.GetString(TypeTags, "")
+	userObj.SetTags(propObj.GetPropStringList("", TypeTag, make([]string, 0)))
 	userObj.gaeObject.Cont = propObj.GetString(TypeCont, "")
 }
 
@@ -56,14 +56,14 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypeCreated:     obj.gaeObject.Created.UnixNano(), //
 		TypeUpdated:     obj.gaeObject.Updated.UnixNano(), //
 		TypeState:       obj.gaeObject.State,              //
+		TypeTag:         obj.GetTags(),                    //
 		TypePointNames:  obj.gaeObject.PointNames,         //
 		TypePointValues: obj.gaeObject.PointValues,        //
-		TypePropNames:    obj.gaeObject.PropNames,           //
-		TypePropValues:   obj.gaeObject.PropValues,          //
+		TypePropNames:   obj.gaeObject.PropNames,          //
+		TypePropValues:  obj.gaeObject.PropValues,         //
 		TypeIconUrl:     obj.gaeObject.IconUrl,            //
 		TypePublicInfo:  obj.gaeObject.PublicInfo,
 		TypeSign:        obj.gaeObject.Sign,
-		TypeTags:        obj.gaeObject.Tags,
 		TypeCont:        obj.gaeObject.Cont,
 	}
 }
