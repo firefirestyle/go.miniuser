@@ -30,8 +30,8 @@ const (
 	TypePublicInfo  = "PublicInfo"
 	TypePointNames  = "PointNames"
 	TypePointValues = "PointValues"
-	TypeTagNames    = "TagNames"
-	TypeTagValues   = "TagValues"
+	TypePropNames   = "PropNames"
+	TypePropValues  = "PropValues"
 	TypeIconUrl     = "IconUrl"
 	TypePrivateInfo = "PrivateInfo"
 	TypeSign        = "Sign"
@@ -50,8 +50,8 @@ type GaeUserItem struct {
 	PrivateInfo string    `datastore:",noindex"`
 	PointNames  []string  `datastore:"Points.Name"`
 	PointValues []float64 `datastore:"Points.Value"`
-	TagNames    []string  `datastore:"Tags.Name"`
-	TagValues   []string  `datastore:"Tags.Value"`
+	PropNames   []string  `datastore:"Props.Name"`
+	PropValues  []string  `datastore:"Props.Value"`
 	//Point   int
 	IconUrl string `datastore:",noindex"`
 	Sign    string `datastore:",noindex"`

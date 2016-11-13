@@ -58,8 +58,8 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypeState:       obj.gaeObject.State,              //
 		TypePointNames:  obj.gaeObject.PointNames,         //
 		TypePointValues: obj.gaeObject.PointValues,        //
-		TypeTagNames:    obj.gaeObject.TagNames,           //
-		TypeTagValues:   obj.gaeObject.TagValues,          //
+		TypePropNames:    obj.gaeObject.PropNames,           //
+		TypePropValues:   obj.gaeObject.PropValues,          //
 		TypeIconUrl:     obj.gaeObject.IconUrl,            //
 		TypePublicInfo:  obj.gaeObject.PublicInfo,
 		TypeSign:        obj.gaeObject.Sign,
