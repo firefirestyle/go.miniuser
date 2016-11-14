@@ -13,8 +13,8 @@ type UserKeyInfo struct {
 
 func (obj *UserManager) MakeUserGaeObjectKeyStringId(userName string, sign string) string {
 	propObj := miniprop.NewMiniProp()
-	propObj.SetString("k", obj.userKind)
-	propObj.SetString("p", obj.rootGroup)
+	propObj.SetString("k", obj.config.UserKind)
+	propObj.SetString("p", obj.config.RootGroup)
 	propObj.SetString("n", userName)
 	propObj.SetString("s", sign)
 	return string(propObj.ToJson())

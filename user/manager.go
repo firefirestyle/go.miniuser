@@ -11,20 +11,31 @@ type UserManagerConfig struct {
 	RootGroup       string
 	UserKind        string
 	UserPointerKind string
+	LengthHash      int
+	LimitOfFinding  int
 }
 
 type UserManager struct {
-	rootGroup      string
-	userKind       string
-	limitOfFinding int
+	config         UserManagerConfig
 	pointerManager *minipointer.PointerManager
 }
 
 func NewUserManager(config UserManagerConfig) *UserManager {
 	obj := new(UserManager)
-	obj.rootGroup = config.RootGroup
-	obj.userKind = config.UserKind
-	obj.limitOfFinding = 10
+	if config.RootGroup == "" {
+		config.RootGroup = "FFUser"
+	}
+	if config.UserKind == "" {
+		config.UserKind = "FFUser"
+	}
+	if config.UserPointerKind == "" {
+		config.UserPointerKind = config.UserKind + "-pointer"
+	}
+	if config.LimitOfFinding <= 0 {
+		config.LimitOfFinding = 20
+	}
+	obj.config = config
+
 	obj.pointerManager = minipointer.NewPointerManager(minipointer.PointerManagerConfig{
 		RootGroup: config.RootGroup,
 		Kind:      config.UserPointerKind,
@@ -34,7 +45,7 @@ func NewUserManager(config UserManagerConfig) *UserManager {
 }
 
 func (obj *UserManager) GetUserKind() string {
-	return obj.userKind
+	return obj.config.UserKind
 }
 
 func (obj *UserManager) NewNewUser(ctx context.Context, sign string) *User {

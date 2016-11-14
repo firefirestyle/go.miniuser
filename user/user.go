@@ -68,7 +68,7 @@ type User struct {
 // ----
 
 func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string, sign string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.userKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
+	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
 }
 
 func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *User {
@@ -91,9 +91,9 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *U
 func (obj *UserManager) newUser(ctx context.Context, userName string, sign string) *User {
 	ret := new(User)
 	ret.prop = make(map[string]map[string]interface{})
-	ret.kind = obj.userKind
+	ret.kind = obj.config.UserKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.RootGroup = obj.rootGroup
+	ret.gaeObject.RootGroup = obj.config.RootGroup
 	ret.gaeObject.Sign = sign
 	ret.gaeObject.UserName = userName
 	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
@@ -104,10 +104,10 @@ func (obj *UserManager) newUser(ctx context.Context, userName string, sign strin
 func (obj *UserManager) newUserFromStringID(ctx context.Context, stringId string) *User {
 	ret := new(User)
 	ret.prop = make(map[string]map[string]interface{})
-	ret.kind = obj.userKind
+	ret.kind = obj.config.UserKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.RootGroup = obj.rootGroup
-	ret.gaeObjectKey = datastore.NewKey(ctx, obj.userKind, stringId, 0, nil)
+	ret.gaeObject.RootGroup = obj.config.RootGroup
+	ret.gaeObjectKey = datastore.NewKey(ctx, obj.config.UserKind, stringId, 0, nil)
 	return ret
 }
 
