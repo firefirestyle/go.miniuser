@@ -23,7 +23,7 @@ func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	inputProp := miniprop.NewMiniPropFromJsonReader(r.Body)
 	token := inputProp.GetString("token", "")
-	loginResult := obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
+	loginResult := obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), true)
 	userName := loginResult.AccessTokenObj.GetUserName()
 	if loginResult.IsLogin == false {
 		userName = ""
@@ -83,6 +83,6 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	return
 }
 
-func (obj *UserHandler) CheckLogin(r *http.Request, token string) minisession.CheckLoginIdResult {
-	return obj.GetSessionMgr().CheckLoginId(appengine.NewContext(r), token, minisession.MakeAccessTokenConfigFromRequest(r))
+func (obj *UserHandler) CheckLogin(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
+	return obj.GetSessionMgr().CheckLoginId(appengine.NewContext(r), token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
 }

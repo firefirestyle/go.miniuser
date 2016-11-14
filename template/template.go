@@ -83,16 +83,16 @@ func (tmpObj *UserTemplate) InitalizeTemplate(ctx context.Context) {
 	}
 }
 
-func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp) minisession.CheckLoginIdResult {
+func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp, useIp bool) minisession.CheckLoginIdResult {
 	ctx := appengine.NewContext(r)
 	token := input.GetString("token", "")
 	Debug(ctx, "CheckLogin ++>"+token)
-	return tmpObj.CheckLoginFromToken(r, token)
+	return tmpObj.CheckLoginFromToken(r, token, useIp)
 }
 
-func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string) minisession.CheckLoginIdResult {
+func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
 	ctx := appengine.NewContext(r)
-	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r))
+	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
 }
 
 func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.UserHandler {
@@ -110,18 +110,18 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
 			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {
-				ret := tmpObj.CheckLogin(r, input)
+				ret := tmpObj.CheckLogin(r, input, true)
 				if ret.IsLogin == false {
 					return map[string]string{}, errors.New("Failed in token check")
 				}
 				return map[string]string{"tk": ret.AccessTokenObj.GetLoginId()}, nil
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobComplete(func(w http.ResponseWriter, r *http.Request, p *miniprop.MiniProp, h *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
-			pp := tmpObj.CheckLoginFromToken(r, r.FormValue("tk"))
+			pp := tmpObj.CheckLoginFromToken(r, r.FormValue("tk"), false)
 			if pp.IsLogin == true {
 				return nil
 			} else {
-				return errors.New("errors")
+				return errors.New("errors:" + r.FormValue("tk"))
 			}
 		})
 		tmpObj.userHandlerObj.AddFacebookSession(facebook.FacebookOAuthConfig{
