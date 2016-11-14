@@ -49,10 +49,10 @@ func (obj *UserManager) GetPointerFromUserName(ctx context.Context, userName str
 func (obj *UserManager) GetUserFromRelayId(ctx context.Context, userName string) (*User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 
-	pointerObj := obj.pointerManager.GetPointerWithNewForRelayId(ctx, userName)
-	if pointerObj.GetValue() == "" {
+	pointerObj, pointerErr := obj.pointerManager.GetPointer(ctx, userName, minipointer.TypePointer)
+	if pointerErr != nil {
 		Debug(ctx, "SaveUserFromNamePointer err1 :"+userName)
-		return nil, errors.New("not found")
+		return nil, errors.New(pointerErr.Error())
 	}
 	return obj.GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
 }
