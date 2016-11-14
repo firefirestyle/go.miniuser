@@ -67,6 +67,18 @@ func (obj *UserManager) DeleteUser(ctx context.Context, userName string, sign st
 	return datastore.Delete(ctx, gaeKey)
 }
 
+func (obj *UserManager) FindAuthPointer(ctx context.Context, userName string) minipointer.FoundPointers {
+	q := obj.pointerManager.NewQueryFromOwner(userName)
+	return obj.pointerManager.FindPointerFromQueryAll(ctx, q)
+
+	//for k := range founded.Keys {
+	//	kInfo := obj.pointerManager.GetKeyInfoFromStringId(k)
+	//	kInfo.IdentifyType
+	//}
+	//(obj *PointerManager) FindPointerFromQueryAll(ctx context.Context, q *datastore.Query) FoundPointers
+}
+
+//
 func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
 }

@@ -20,6 +20,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 	userName := inputProp.GetString("userName", "")
 	displayName := inputProp.GetString("displayName", "")
 	content := inputProp.GetString("content", "")
+	token := inputProp.GetString("token", "")
 
 	reqErr := obj.OnUpdateUserRequest(w, r, obj, inputProp, outputProp)
 	if reqErr != nil {
@@ -27,6 +28,33 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 		obj.HandleError(w, r, outputProp, 2001, reqErr.Error())
 		return
 	}
+	//
+	// check token
+	{
+		loginResult := obj.CheckLoginFromToken(r, token, true)
+		if loginResult.IsLogin == false {
+			obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+			obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "need to login")
+			return
+		}
+
+		if userName == "" {
+			userName = loginResult.AccessTokenObj.GetUserName()
+		}
+		if userName != loginResult.AccessTokenObj.GetUserName() {
+			usrObj, userErr := obj.GetManager().GetUserFromRelayId(ctx, loginResult.AccessTokenObj.GetUserName())
+			if userErr != nil {
+				obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+				obj.HandleError(w, r, outputProp, 2002, userErr.Error())
+				return
+			}
+			if false == usrObj.GetIsMaster() {
+				obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
+				obj.HandleError(w, r, outputProp, 2002, "need to admin status ")
+			}
+		}
+	}
+
 	usrObj, userErr := obj.GetManager().GetUserFromRelayId(ctx, userName)
 	if userErr != nil {
 		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)

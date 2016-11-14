@@ -46,10 +46,6 @@ func (obj *UserManager) GetPointerFromUserName(ctx context.Context, userName str
 	return obj.pointerManager.GetPointer(ctx, userName, minipointer.TypePointer)
 }
 
-func (obj *UserManager) FindAuthPointer(ctx context.Context, userName string) {
-	//obj.pointerManager.FindFromOwner()
-}
-
 func (obj *UserManager) GetUserFromRelayId(ctx context.Context, userName string) (*User, error) {
 	Debug(ctx, "SaveUserFromNamePointer :"+userName)
 

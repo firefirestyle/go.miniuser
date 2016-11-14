@@ -12,6 +12,7 @@ import (
 	"github.com/firefirestyle/go.minisession"
 	miniuser "github.com/firefirestyle/go.miniuser/user"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 	//
 	"crypto/sha1"
@@ -40,9 +41,9 @@ type UserHandlerManagerConfig struct {
 	LengthHash                 int
 	//
 	//
-	MasterKey     []string
-	MasterUser    []string
-	MasterAccount []string
+	//MasterKey     []string
+	//MasterUser    []string
+	//MasterAccount []string
 }
 
 type UserHandlerOnEvent struct {
@@ -111,6 +112,10 @@ func NewUserHandler(callbackUrl string, //
 	return ret
 }
 
+func (obj *UserHandler) GetPointerManager() *minipointer.PointerManager {
+	return obj.relayIdMgr
+}
+
 func (obj *UserHandler) GetBlobHandler() *blobhandler.BlobHandler {
 	return obj.blobHandler
 }
@@ -123,10 +128,6 @@ func (obj *UserHandler) AddFacebookSession(facebookConfig facebook.FacebookOAuth
 	obj.facebookHandler = obj.NewFacebookHandlerObj(facebookConfig)
 }
 
-func (obj *UserHandler) GetUserHandleEvent() {
-	//obj.
-}
-
 func (obj *UserHandler) GetSessionMgr() *minisession.SessionManager {
 	return obj.sessionMgr
 }
@@ -137,6 +138,11 @@ func (obj *UserHandler) GetManager() *miniuser.UserManager {
 
 func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
+}
+
+func (obj *UserHandler) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
+	ctx := appengine.NewContext(r)
+	return obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
 }
 
 func (obj *UserHandler) HandleError(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, errorCode int, errorMessage string) {

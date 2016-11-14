@@ -66,8 +66,12 @@ func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Re
 		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "not found token")
 		return
 	}
-	keyInfo, _ := obj.GetSessionMgr().MakeLoginIdInfoFromLoginId(token)
-	userName := keyInfo.UserName
+	loginResult := obj.CheckLoginFromToken(r, token, true)
+	if loginResult.IsLogin == false {
+		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "need to login")
+		return
+	}
+	userName := loginResult.AccessTokenObj.GetUserName()
 	dir := inputPropObj.GetString("dir", "")
 	name := inputPropObj.GetString("file", "")
 
@@ -78,8 +82,6 @@ func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Re
 
 func (obj *UserHandler) HandleBlobUpdated(w http.ResponseWriter, r *http.Request) {
 	//
-	ctx := appengine.NewContext(r)
-	Debug(ctx, "callbeck AAAA")
 	obj.blobHandler.HandleUploaded(w, r)
 }
 

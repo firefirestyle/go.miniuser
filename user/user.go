@@ -54,6 +54,7 @@ type GaeUserItem struct {
 	IconUrl     string `datastore:",noindex"`
 	Sign        string `datastore:",noindex"`
 	Cont        string `datastore:",noindex"`
+	isMaster    bool
 }
 
 type User struct {
@@ -243,6 +244,14 @@ func (obj *User) GetTags() []string {
 		ret = append(ret, v)
 	}
 	return ret
+}
+
+func (obj *User) SetMaster(v bool) {
+	obj.gaeObject.isMaster = v
+}
+
+func (obj *User) GetIsMaster() bool {
+	return obj.gaeObject.isMaster
 }
 
 func (obj *User) SetTags(vs []string) {

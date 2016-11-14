@@ -99,9 +99,8 @@ func (tmpObj *UserTemplate) InitalizeTemplate(ctx context.Context) {
 }
 
 func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp, useIp bool) minisession.CheckLoginIdResult {
-	ctx := appengine.NewContext(r)
+	//	ctx := appengine.NewContext(r)
 	token := input.GetString("token", "")
-	Debug(ctx, "CheckLogin ++>"+token)
 	return tmpObj.CheckLoginFromToken(r, token, useIp)
 }
 
