@@ -117,6 +117,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				UserKind:                   tmpObj.config.KindBaseName,
 				BlobSign:                   tmpObj.config.PrivateKey,
 				MemcachedOnlyInBlobPointer: tmpObj.config.MemcachedOnlyInBlobPointer,
+				LengthHash:                 8,
 			})
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
 			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {

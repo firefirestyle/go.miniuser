@@ -37,6 +37,7 @@ type UserHandlerManagerConfig struct {
 	BlobPointerKind            string
 	BlobSign                   string
 	MemcachedOnlyInBlobPointer bool
+	LengthHash                 int
 }
 
 type UserHandlerOnEvent struct {
@@ -79,6 +80,7 @@ func NewUserHandler(callbackUrl string, //
 			RootGroup:       config.RootGroup,
 			UserKind:        config.UserKind,
 			UserPointerKind: config.RelayIdKind,
+			LengthHash:      config.LengthHash,
 		}),
 		relayIdMgr: minipointer.NewPointerManager( //
 			minipointer.PointerManagerConfig{
@@ -95,6 +97,7 @@ func NewUserHandler(callbackUrl string, //
 			PointerKind:            config.BlobPointerKind,
 			CallbackUrl:            callbackUrl,
 			MemcachedOnlyInPointer: config.MemcachedOnlyInBlobPointer,
+			HashLength:             10,
 		}),
 		onEvents: UserHandlerOnEvent{},
 	}
