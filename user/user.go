@@ -80,6 +80,9 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *U
 		io.WriteString(hashObj, miniprop.MakeRandomId())
 		io.WriteString(hashObj, strconv.FormatInt(now, 36))
 		userName := string(base32.StdEncoding.EncodeToString(hashObj.Sum(nil)))
+		if obj.config.LengthHash >= 5 && len(userName) > obj.config.LengthHash {
+			userName = userName[:obj.config.LengthHash]
+		}
 		userObj, err = obj.GetUserFromUserName(ctx, userName, sign)
 		if err != nil {
 			break

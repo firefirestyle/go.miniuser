@@ -99,7 +99,6 @@ func (userMgrObj *UserHandler) OnBlobComplete(w http.ResponseWriter, r *http.Req
 	if true == strings.HasPrefix(dir, "/user") {
 		ctx := appengine.NewContext(r)
 		userName := userMgrObj.GetUserNameFromDir(dir)
-		Debug(ctx, "dir::"+dir+";;username::"+userName)
 
 		userObj, userErr := userMgrObj.GetManager().GetUserFromRelayId(ctx, userName)
 		if userErr != nil {
