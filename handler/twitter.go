@@ -121,8 +121,9 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, userObj.GetUserName())
 		pointerObj.SetValue(userObj.GetUserName())
+		pointerObj.SetOwner(userObj.GetUserName())
 		pointerObj.SetSign("")
-		Debug(ctx, "LoginRegistFromTwitter :")
+		//Debug(ctx, "LoginRegistFromTwitter :")
 		err := obj.relayIdMgr.Save(ctx, pointerObj)
 		if err != nil {
 			return needMake, nil, nil, errors.New("failed to save pointreobj : " + err.Error())
@@ -130,6 +131,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 		//
 		// set username
 		relayIdObj.SetValue(pointerObj.GetValue())
+		relayIdObj.SetOwner(userObj.GetUserName())
 	}
 
 	//

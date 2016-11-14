@@ -38,6 +38,11 @@ type UserHandlerManagerConfig struct {
 	BlobSign                   string
 	MemcachedOnlyInBlobPointer bool
 	LengthHash                 int
+	//
+	//
+	MasterKey     []string
+	MasterUser    []string
+	MasterAccount []string
 }
 
 type UserHandlerOnEvent struct {
