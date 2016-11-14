@@ -48,7 +48,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 				obj.HandleError(w, r, outputProp, 2002, userErr.Error())
 				return
 			}
-			if false == usrObj.GetIsMaster() {
+			if true == usrObj.IsMaster() {
 				obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
 				obj.HandleError(w, r, outputProp, 2002, "need to admin status ")
 			}

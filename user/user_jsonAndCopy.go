@@ -46,6 +46,7 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 	userObj.gaeObject.Sign = propObj.GetString(TypeSign, "")
 	userObj.SetTags(propObj.GetPropStringList("", TypeTag, make([]string, 0)))
 	userObj.gaeObject.Cont = propObj.GetString(TypeCont, "")
+	userObj.gaeObject.Permission = propObj.GetInt(TypePermission, 0)
 }
 
 func (obj *User) ToMapPublic() map[string]interface{} {
@@ -65,6 +66,7 @@ func (obj *User) ToMapPublic() map[string]interface{} {
 		TypePublicInfo:  obj.gaeObject.PublicInfo,
 		TypeSign:        obj.gaeObject.Sign,
 		TypeCont:        obj.gaeObject.Cont,
+		TypePermission:  obj.gaeObject.Permission,
 	}
 }
 

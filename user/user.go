@@ -36,6 +36,7 @@ const (
 	TypePrivateInfo = "PrivateInfo"
 	TypeSign        = "Sign"
 	TypeCont        = "Cont"
+	TypePermission  = "Permission"
 )
 
 type GaeUserItem struct {
@@ -54,7 +55,7 @@ type GaeUserItem struct {
 	IconUrl     string `datastore:",noindex"`
 	Sign        string `datastore:",noindex"`
 	Cont        string `datastore:",noindex"`
-	IsMaster    bool
+	Permission  int
 }
 
 type User struct {
@@ -240,25 +241,34 @@ func (obj *User) GetStringId() string {
 func (obj *User) GetTags() []string {
 	ret := make([]string, 0)
 	for _, v := range obj.gaeObject.Tags {
-		//		ret = append(ret, v.Tag)
 		ret = append(ret, v)
 	}
 	return ret
 }
 
-func (obj *User) SetMaster(v bool) {
-	obj.gaeObject.IsMaster = v
+func (obj *User) SetPermission(v int) {
+	obj.gaeObject.Permission = v
 }
 
-func (obj *User) GetIsMaster() bool {
-	return obj.gaeObject.IsMaster
+func (obj *User) GetPermission() int {
+	return obj.gaeObject.Permission
+}
+
+func (obj *User) IsMaster() bool {
+	return obj.gaeObject.Permission&0x80 == 0x80
+}
+
+func (obj *User) SetMaster(on bool) {
+	if on == true {
+		obj.gaeObject.Permission = obj.gaeObject.Permission | 0x00000080
+	} else {
+		obj.gaeObject.Permission = obj.gaeObject.Permission & 0xFFFFFF7F
+	}
 }
 
 func (obj *User) SetTags(vs []string) {
-	//	obj.gaeObject.Tags = make([]Tag, 0)
 	obj.gaeObject.Tags = make([]string, 0)
 	for _, v := range vs {
-		//		obj.gaeObject.Tags = append(obj.gaeObject.Tags, Tag{Tag: v})
 		obj.gaeObject.Tags = append(obj.gaeObject.Tags, v)
 	}
 }
