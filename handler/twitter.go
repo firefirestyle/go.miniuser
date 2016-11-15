@@ -5,6 +5,8 @@ import (
 
 	"errors"
 
+	"strconv"
+
 	"github.com/firefirestyle/go.minioauth/facebook"
 	"github.com/firefirestyle/go.minioauth/twitter"
 	"github.com/firefirestyle/go.minipointer"
@@ -38,7 +40,10 @@ func (obj *UserHandler) NewFacebookHandlerObj(config facebook.FacebookOAuthConfi
 				if err != nil {
 					return map[string]string{"errcode": "1"}
 				} else {
-					return map[string]string{"token": "" + tokenObj.GetLoginId(), "userName": userObj.GetUserName()}
+					return map[string]string{ //
+						"token":    "" + tokenObj.GetLoginId(), //
+						"userName": userObj.GetUserName(),
+						"isMaster": strconv.Itoa(userObj.GetPermission())}
 				}
 			},
 		})
@@ -72,7 +77,10 @@ func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) 
 				if err != nil {
 					return map[string]string{"errcode": "1"}
 				} else {
-					return map[string]string{"token": "" + tokenObj.GetLoginId(), "userName": userObj.GetUserName()}
+					return map[string]string{ //
+						"token":    "" + tokenObj.GetLoginId(), //
+						"userName": userObj.GetUserName(),
+						"isMaster": strconv.Itoa(userObj.GetPermission())}
 				}
 			},
 		})
