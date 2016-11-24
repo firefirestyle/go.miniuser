@@ -113,7 +113,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 	if tmpObj.userHandlerObj == nil {
 		v := appengine.DefaultVersionHostname(ctx)
 		scheme := "https"
-		if v == "127.0.0.1:8080" {
+		if v == "127.0.0.1:8080" || v == "localhost:8080" {
 			v = "localhost:8080"
 			scheme = "http"
 		}
